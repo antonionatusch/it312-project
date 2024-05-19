@@ -44,3 +44,6 @@ a los co-dueños:
 Daniel Gonzales - a2020116081@estudiantes.upsa.edu.bo
 
 Antonio Natusch - a2022111958@estudiantes.upsa.edu.bo
+
+## Recursos
+Libro: <a href="https://virtual.upsa.edu.bo/pluginfile.php/657544/mod_resource/content/1/Libro%20Control%20Estad%C3%ADstico%20de%20Calidad%20y%206%20Sigma.pdf?redirect=1"> CONTROL ESTADÍSTICO DE CALIDAD Y SEIS SIGMA </a>
