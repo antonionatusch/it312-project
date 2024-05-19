@@ -8,6 +8,10 @@
 # it312-project y sus objetivos
 Repositorio que contiene los avances y distintas utilidades necesarias para el desarrollo del proyecto web para la <a href="https://intra.upsa.edu.bo/">**TecnoUPSA 2024**</a> 
 
+*Nota: Aquí también está incluido el marcador de mapas, mas no es el foco principal del presente repositorio.
+
+Se debe especificar en el pull request el tipo de avance que se hizo.
+
 Objetivos:
 * Autogeneración de datos para el histograma, utilizando numeros aleatorios dentro de un rango realista **según la variable**
 * Creación de gráficos de control de observaciones individuales
