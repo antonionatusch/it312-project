@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Interactivo</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <link rel="stylesheet" href="custom.css">
+</head>
+<body>
+<h1>Mapa Interactivo</h1>
+<div id="mapa"></div>
+<div id="botones">
+    <button id="iniciar">Iniciar colocación de marcadores</button>
+    <button id="terminar" disabled>Terminar colocación de marcadores</button>
+
+    <div id="informacion-clima">
+        <p>Temperatura: <span id="temperatura"></span>°C</p>
+        <p>Humedad: <span id="humedad"></span>%</p>
+        <p>Probabilidad de lluvia: <span id="probabilidad-lluvia"></span>%</p>
+        <p>Velocidad del viento: <span id="velocidad-viento"></span> km/h</p>
+        <a href="tabla.html"><button id="tabla">Tabla</button></a> <!-- Nuevo botón para la tabla -->
+
+    </div>
+    <div id="marcadores-conectados">
+        <h2>Marcadores Conectados</h2>
+        <ul id="lista-marcadores"></ul>
+    </div>
+    <div id="grafo"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.min.js"></script>
+<script src="pagina.js"></script>
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
+</body>
+</html>

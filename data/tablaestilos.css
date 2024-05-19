@@ -1,0 +1,106 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 10px;
+}
+
+.home-button {
+    text-decoration: none;
+    color: #fff;
+    background-color: #ff0000; /* Cambiamos el color de fondo a rojo */
+    padding: 8px 15px;
+    border-radius: 5px;
+    border: 1px solid #000;
+    transition: background-color 0.3s ease;
+}
+
+.home-button:hover {
+    background-color: #cc0000; /* Cambiamos el color de fondo a un tono más oscuro al pasar el cursor */
+}
+
+
+.container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    margin: 0;
+}
+
+.button-group button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button-group button:hover {
+    background-color: #0056b3;
+}
+
+.input-group input {
+    width: 50px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#tablaContainer {
+    margin-top: 20px;
+    overflow-x: auto;
+    text-align: center;
+}
+
+table {
+    width: 80%;
+    border-collapse: collapse;
+    margin: 20px auto;
+}
+
+table th, table td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #030303;
+}
+
+table td {
+    background-color: #fff;
+}
+
+.button-spacing {
+    display: inline-block;
+    width: 10px; /* Adjust as needed */
+}
+
+#histogramaCanvas {
+    max-width: 400px; /* Reducir el ancho máximo del canvas */
+    width: 50%; /* Hacer que el canvas ocupe todo el ancho disponible */
+    height: auto; /* Permitir que la altura se ajuste automáticamente según el ancho */
+    margin: 0 auto; /* Centrar el canvas horizontalmente */
+    display: block; /* Cambiar la visualización a bloque para asegurar el ancho máximo */
+    margin-left: 20px;
+}
+

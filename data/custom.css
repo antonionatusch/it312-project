@@ -1,0 +1,130 @@
+/* Estilos para el mapa */
+#mapa {
+    width: 50%;
+    height: 500px;
+    margin: 60px auto;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    margin-left: 20px;
+    margin-top: 100px;
+}
+/* Estilos para el contenedor del grafo */
+#grafo {
+    top: 450px;
+    position: absolute;
+    width: 45%;
+    height:450px; /* Ajusta la altura según tus necesidades */
+    border: 1px solid #ccc;
+    margin: 60px auto;
+    margin-left: 900px;
+}
+
+/* Estilos para los botones */
+#botones {
+    text-align: left;
+    margin-top: 20px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 0 10px;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+}
+
+.leaflet-control {
+    background-color: #f8f9fa;
+    border: 1px solid #ccc;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#terminar {
+    background-color: #f44336;
+}
+
+#terminar:hover {
+    background-color: #d32f2f;
+}
+
+/* Estilos para el título */
+h1 {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+#informacion-clima p {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+/* Estilos para la lista de marcadores */
+#marcadores-conectados {
+    position: absolute;
+    top: 150px;
+    right: 500px;
+    left: 900px;
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#marcadores-conectados h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+#lista-marcadores {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#lista-marcadores li {
+    margin-bottom: 5px;
+    font-size: 16px;
+    color: #555;
+}
+
+
+
+/* Estilos para los nodos del grafo */
+.vis-network {
+    font-family: Arial, sans-serif;
+}
+
+/* Estilos para los bordes y las flechas del grafo */
+.vis-edge {
+    color: #666;
+    text-align: center;
+}
+
+/* Estilos para los textos en los nodos */
+.vis-label {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Estilos para las flechas de los bordes */
+.vis-arrow {
+    fill: #666;
+}
+
+/* Estilos para los textos en los bordes */
+.vis-edge-text {
+    font-size: 10px;
+    fill: #666;
+}
