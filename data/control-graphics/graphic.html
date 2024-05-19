@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GC Peso</title>
+    <link rel="stylesheet" href="graphicstyles.css">
+</head>
+<body>
+<div class="container">
+    <h1>Gráficos de Control de Observaciones Individuales y Rangos Móviles</h1>
+    <div class="content-container">
+        <div class="table-container">
+            <table id="dataTable">
+                <thead>
+                <tr>
+                    <th>Dron</th>
+                    <th>Peso en gramos</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- Filas generadas dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+        <div class="chart-container">
+            <canvas id="controlChart"></canvas>
+            <canvas id="rangeChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="graphicscripts.js"></script>
+</body>
+</html>
