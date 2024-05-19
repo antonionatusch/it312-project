@@ -5,8 +5,14 @@
   </a>
 </div>
 
-# si310-labs y sus reglas
-Repositorio que contiene los avances y distintas utilidades necesarias para el desarrollo del proyecto web para la <a href="https://intra.upsa.edu.bo/">**TecnoUPSA 2024**</a>
+# it312-project y sus objetivos
+Repositorio que contiene los avances y distintas utilidades necesarias para el desarrollo del proyecto web para la <a href="https://intra.upsa.edu.bo/">**TecnoUPSA 2024**</a> 
+
+Objetivos:
+* Autogeneración de datos para el histograma, utilizando numeros aleatorios dentro de un rango realista **según la variable**
+* Creación de gráficos de control de observaciones individuales
+* Diagrama de dispersión y análisis de correlación entre 2 variables cualesquiera
+
 
 ## gitignore
 El gitignore **bajo _ninguna_ circunstancia** debe modificarse sin previa autorización de los administradores del repo,
@@ -29,7 +35,7 @@ archivos importantes como el _.gitignore_ o el _README.md_** (es decir, el prese
 
 
 ## Lenguaje
-Al ser un sitio web, se desarrollará en **HTML**, **CSS**, y **JavaScript**, con algún que otro archivo que genera el IDE WebStorm
+Al ser un sitio web, se desarrollará en **HTML**, **CSS**, y **JavaScript.**
 
 ## Contacto
 Cualquier duda, sugerencia, o recomendación deberá hacerse contactando de manera presencial o por correo
