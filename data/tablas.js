@@ -271,6 +271,8 @@ function generarDiagramaDispersion() {
     var regression = linearRegression(dataX, dataY);
     var trendlineData = dataX.map(x => ({ x: x, y: regression.slope * x + regression.intercept }));
 
+    var nombres = Array.from(table.rows[0].cells).map(cell => cell.textContent.trim());
+
     scatterPlotCanvas.scatterChart = new Chart(ctx, {
         type: 'scatter',
         data: {
@@ -302,13 +304,13 @@ function generarDiagramaDispersion() {
                     position: 'bottom',
                     title: {
                         display: true,
-                        text: selectX.options[xIndex].text
+                        text: nombres[xIndex] || `Variable ${xIndex + 1}`
                     }
                 },
                 y: {
                     title: {
                         display: true,
-                        text: selectY.options[yIndex].text
+                        text: nombres[yIndex] || `Variable ${yIndex + 1}`
                     }
                 }
             }
@@ -316,7 +318,12 @@ function generarDiagramaDispersion() {
     });
 
     var correlation = calculateCorrelation(dataX, dataY);
-    document.getElementById('correlationResults').textContent = `Correlación: ${correlation.toFixed(2)}`;
+    var determination = Math.pow(correlation, 2);
+
+    document.getElementById('correlationResults').innerHTML = `
+        <p>Correlación: ${correlation.toFixed(2)}</p>
+        <p>Coeficiente de Determinación (R²): ${determination.toFixed(2)}</p>
+    `;
 
     document.getElementById('borrarDiagramaButton').style.display = 'inline-block';
 }
@@ -362,3 +369,4 @@ function populateColumnSelects() {
         selectY.add(optionClone);
     }
 }
+
