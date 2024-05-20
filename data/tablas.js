@@ -1,3 +1,4 @@
+// tablas.js
 function generarTabla() {
     var filas = parseInt(document.getElementById('filas').value);
     var columnas = parseInt(document.getElementById('columnas').value);
@@ -25,10 +26,7 @@ function generarTabla() {
 
     document.getElementById('tablaContainer').innerHTML = tabla;
 
-    // Mostrar botón de generar diagrama de dispersión
     document.getElementById('generarDiagramaButton').style.display = 'inline-block';
-
-    // Poblar selects para el diagrama de dispersión
     populateColumnSelects();
     conectarEventos();
 }
@@ -78,7 +76,6 @@ function generarDatos() {
         }
     }
 
-    // Regenerar el diagrama de dispersión si ya ha sido generado
     var scatterPlotCanvas = document.getElementById('scatterPlotCanvas');
     if (scatterPlotCanvas.scatterChart) {
         generarDiagramaDispersion();
@@ -103,7 +100,9 @@ function generateControlCharts() {
     }
 
     var controlChartContainer = document.getElementById('controlChartContainer');
+    var rangeChartContainer = document.getElementById('rangeChartContainer');
     controlChartContainer.innerHTML = '';
+    rangeChartContainer.innerHTML = '';
 
     datasets.forEach((data, index) => {
         var canvas = document.createElement('canvas');
@@ -156,6 +155,60 @@ function generateControlCharts() {
                 }
             }
         });
+
+        // Gráfico de Rangos Móviles
+        var rangeCanvas = document.createElement('canvas');
+        rangeCanvas.className = 'rangeChartCanvas';
+        rangeChartContainer.appendChild(rangeCanvas);
+
+        var rangeCtx = rangeCanvas.getContext('2d');
+        var ranges = [];
+        for (let i = 1; i < data.length; i++) {
+            ranges.push(Math.abs(data[i] - data[i - 1]));
+        }
+
+        var meanRange = ranges.reduce((sum, value) => sum + value, 0) / ranges.length;
+        const d2 = 1.128;
+        var upperRangeControlLimit = meanRange + 3 * (meanRange / d2);
+        var lowerRangeControlLimit = Math.max(0, meanRange - 3 * (meanRange / d2));
+
+        new Chart(rangeCtx, {
+            type: 'line',
+            data: {
+                labels: Array.from({ length: ranges.length }, (_, i) => i + 1),
+                datasets: [{
+                    label: `Rangos Móviles - Variable ${index + 1}`,
+                    data: ranges,
+                    borderColor: 'blue',
+                    fill: false
+                }, {
+                    label: 'Límite Superior de Control (UCL)',
+                    data: Array(ranges.length).fill(upperRangeControlLimit),
+                    borderColor: 'red',
+                    borderDash: [5, 5],
+                    fill: false
+                }, {
+                    label: 'Límite Inferior de Control (LCL)',
+                    data: Array(ranges.length).fill(lowerRangeControlLimit),
+                    borderColor: 'red',
+                    borderDash: [5, 5],
+                    fill: false
+                }, {
+                    label: 'Media',
+                    data: Array(ranges.length).fill(meanRange),
+                    borderColor: 'green',
+                    borderDash: [5, 5],
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: `Gráfico de Rangos Móviles - Variable ${index + 1}`
+                }
+            }
+        });
     });
 
     document.getElementById('borrarControlChartsButton').style.display = 'inline-block';
@@ -163,9 +216,9 @@ function generateControlCharts() {
 
 function borrarControlCharts() {
     document.getElementById('controlChartContainer').innerHTML = '';
+    document.getElementById('rangeChartContainer').innerHTML = '';
     document.getElementById('borrarControlChartsButton').style.display = 'none';
 }
-
 
 function linearRegression(x, y) {
     var n = x.length;
@@ -261,7 +314,6 @@ function generarDiagramaDispersion() {
 
     document.getElementById('borrarDiagramaButton').style.display = 'inline-block';
 }
-
 
 function borrarDiagramaDispersion() {
     var scatterPlotCanvas = document.getElementById('scatterPlotCanvas');

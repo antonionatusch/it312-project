@@ -15,7 +15,7 @@ header {
 .home-button {
     text-decoration: none;
     color: #fff;
-    background-color: #ff0000; /* Cambiamos el color de fondo a rojo */
+    background-color: #ff0000;
     padding: 8px 15px;
     border-radius: 5px;
     border: 1px solid #000;
@@ -23,7 +23,7 @@ header {
 }
 
 .home-button:hover {
-    background-color: #cc0000; /* Cambiamos el color de fondo a un tono más oscuro al pasar el cursor */
+    background-color: #cc0000;
 }
 
 .container {
@@ -89,27 +89,12 @@ table td {
     background-color: #fff;
 }
 
-#histogramaCanvas {
-    max-width: 400px; /* Reducir el ancho máximo del canvas */
-    width: 50%; /* Hacer que el canvas ocupe todo el ancho disponible */
-    height: auto; /* Permitir que la altura se ajuste automáticamente según el ancho */
-    margin: 0 auto; /* Centrar el canvas horizontalmente */
-    display: block; /* Cambiar la visualización a bloque para asegurar el ancho máximo */
-    margin-left: 20px;
-}
-
-.button-group-generar-datos {
-    display: flex;
-    justify-content: flex-end; /* Mover el botón hacia la derecha */
-    margin-top: 20px; /* Ajustamos el margen superior */
-}
-
-.controlChartContainer {
+.controlChartContainer, .rangeChartContainer {
     margin-top: 20px;
     text-align: center;
 }
 
-.controlChartCanvas {
+.controlChartCanvas, .rangeChartCanvas {
     max-width: 400px;
     width: 80%;
     height: 200px;
@@ -118,7 +103,7 @@ table td {
 }
 
 .scatter-container {
-    width: 400px; /* Define el ancho deseado */
-    height: 400px; /* Define la altura deseada */
-    margin: 0 auto; /* Centra el contenedor horizontalmente */
+    width: 400px;
+    height: 400px;
+    margin: 0 auto;
 }
