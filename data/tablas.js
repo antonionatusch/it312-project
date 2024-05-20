@@ -1,4 +1,3 @@
-// tablas.js
 function generarTabla() {
     var filas = parseInt(document.getElementById('filas').value);
     var columnas = parseInt(document.getElementById('columnas').value);
@@ -26,7 +25,10 @@ function generarTabla() {
 
     document.getElementById('tablaContainer').innerHTML = tabla;
 
+    // Mostrar botón de generar diagrama de dispersión
     document.getElementById('generarDiagramaButton').style.display = 'inline-block';
+
+    // Poblar selects para el diagrama de dispersión
     populateColumnSelects();
     conectarEventos();
 }
@@ -76,6 +78,7 @@ function generarDatos() {
         }
     }
 
+    // Regenerar el diagrama de dispersión si ya ha sido generado
     var scatterPlotCanvas = document.getElementById('scatterPlotCanvas');
     if (scatterPlotCanvas.scatterChart) {
         generarDiagramaDispersion();
@@ -100,11 +103,13 @@ function generateControlCharts() {
     }
 
     var controlChartContainer = document.getElementById('controlChartContainer');
-    var rangeChartContainer = document.getElementById('rangeChartContainer');
     controlChartContainer.innerHTML = '';
-    rangeChartContainer.innerHTML = '';
+
+    var nombres = Array.from(table.rows[0].cells).map(cell => cell.textContent.trim());
 
     datasets.forEach((data, index) => {
+        var nombre = nombres[index] || `Variable ${index + 1}`;
+
         var canvas = document.createElement('canvas');
         canvas.className = 'controlChartCanvas';
         controlChartContainer.appendChild(canvas);
@@ -123,7 +128,7 @@ function generateControlCharts() {
             data: {
                 labels: Array.from({ length: data.length }, (_, i) => i + 1),
                 datasets: [{
-                    label: `Variable ${index + 1}`,
+                    label: nombre,
                     data: data,
                     borderColor: 'blue',
                     fill: false
@@ -151,45 +156,47 @@ function generateControlCharts() {
                 responsive: true,
                 title: {
                     display: true,
-                    text: `Gráfico de Control - Variable ${index + 1}`
+                    text: `Gráfico de Control - ${nombre}`
                 }
             }
         });
 
         // Gráfico de Rangos Móviles
-        var rangeCanvas = document.createElement('canvas');
-        rangeCanvas.className = 'rangeChartCanvas';
-        rangeChartContainer.appendChild(rangeCanvas);
-
-        var rangeCtx = rangeCanvas.getContext('2d');
         var ranges = [];
-        for (let i = 1; i < data.length; i++) {
+        for (var i = 1; i < data.length; i++) {
             ranges.push(Math.abs(data[i] - data[i - 1]));
         }
 
         var meanRange = ranges.reduce((sum, value) => sum + value, 0) / ranges.length;
-        const d2 = 1.128;
-        var upperRangeControlLimit = meanRange + 3 * (meanRange / d2);
-        var lowerRangeControlLimit = Math.max(0, meanRange - 3 * (meanRange / d2));
+        var d2 = 1.128;
 
-        new Chart(rangeCtx, {
+        var UCLR = meanRange + 3 * (meanRange / d2);
+        var LCLR = Math.max(0, meanRange - 3 * (meanRange / d2));
+
+        var canvasRangos = document.createElement('canvas');
+        canvasRangos.className = 'controlChartCanvas';
+        controlChartContainer.appendChild(canvasRangos);
+
+        var ctxRangos = canvasRangos.getContext('2d');
+
+        new Chart(ctxRangos, {
             type: 'line',
             data: {
                 labels: Array.from({ length: ranges.length }, (_, i) => i + 1),
                 datasets: [{
-                    label: `Rangos Móviles - Variable ${index + 1}`,
+                    label: `Rangos Móviles - ${nombre}`,
                     data: ranges,
                     borderColor: 'blue',
                     fill: false
                 }, {
                     label: 'Límite Superior de Control (UCL)',
-                    data: Array(ranges.length).fill(upperRangeControlLimit),
+                    data: Array(ranges.length).fill(UCLR),
                     borderColor: 'red',
                     borderDash: [5, 5],
                     fill: false
                 }, {
                     label: 'Límite Inferior de Control (LCL)',
-                    data: Array(ranges.length).fill(lowerRangeControlLimit),
+                    data: Array(ranges.length).fill(LCLR),
                     borderColor: 'red',
                     borderDash: [5, 5],
                     fill: false
@@ -205,7 +212,7 @@ function generateControlCharts() {
                 responsive: true,
                 title: {
                     display: true,
-                    text: `Gráfico de Rangos Móviles - Variable ${index + 1}`
+                    text: `Rangos Móviles - ${nombre}`
                 }
             }
         });
@@ -216,7 +223,6 @@ function generateControlCharts() {
 
 function borrarControlCharts() {
     document.getElementById('controlChartContainer').innerHTML = '';
-    document.getElementById('rangeChartContainer').innerHTML = '';
     document.getElementById('borrarControlChartsButton').style.display = 'none';
 }
 
@@ -350,7 +356,7 @@ function populateColumnSelects() {
 
     for (var j = 0; j < columnas; j++) {
         var option = document.createElement('option');
-        option.text = `Variable ${j + 1}`;
+        option.text = table.rows[0].cells[j].textContent.trim() || `Variable ${j + 1}`;
         selectX.add(option);
         var optionClone = option.cloneNode(true);
         selectY.add(optionClone);
