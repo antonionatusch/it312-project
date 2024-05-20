@@ -227,7 +227,8 @@ function generarDiagramaDispersion() {
                 borderColor: 'red',
                 fill: false,
                 showLine: true,
-                tension: 0
+                tension: 0,
+                pointRadius: 0
             }]
         },
         options: {
