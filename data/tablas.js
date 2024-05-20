@@ -62,379 +62,244 @@ function generarDatos() {
                         valor = Math.floor(Math.random() * (2000 - 1990 + 1)) + 1990;
                         break;
                     case 'Batería':
-                        valor = Math.floor(Math.random() * (120 - 110 + 1)) + 110;
+                        valor = Math.floor(Math.random() * (60 - 55 + 1)) + 55;
                         break;
                     case 'Peso':
-                        valor = Math.floor(Math.random() * (2000 - 1990 + 1)) + 1990;
+                        valor = Math.floor(Math.random() * (1500 - 1490 + 1)) + 1490;
                         break;
                     default:
-                        valor = Math.round((Math.random() * 100) * 10) / 10;
+                        valor = Math.floor(Math.random() * 100);
+                        break;
                 }
             } else {
-                valor = Math.round((Math.random() * 100) * 10) / 10;
+                valor = Math.floor(Math.random() * 100);
             }
             row.cells[j].textContent = valor;
         }
     }
-}
 
-function conectarEventos() {
-    // Eliminar eventos anteriores para evitar duplicados
-    document.getElementById('generarDiagramaButton').onclick = null;
-    document.getElementById('borrarDiagramaButton').onclick = null;
-
-    // Conectar eventos a los botones
-    document.getElementById('generarDiagramaButton').onclick = generarDiagramaDispersion;
-    document.getElementById('borrarDiagramaButton').onclick = borrarDiagramaDispersion;
+    // Regenerar el diagrama de dispersión si ya ha sido generado
+    var scatterPlotCanvas = document.getElementById('scatterPlotCanvas');
+    if (scatterPlotCanvas.scatterChart) {
+        generarDiagramaDispersion();
+    }
 }
 
 function generateControlCharts() {
-    borrarControlCharts();
-    const tabla = document.querySelector('#tablaContainer table');
-    if (!tabla) return;
-    const columnas = tabla.rows[0].cells.length;
-    const controlChartContainer = document.getElementById('controlChartContainer');
-    for (let i = 0; i < columnas; i++) {
-        const canvasObservaciones = document.createElement('canvas');
-        canvasObservaciones.id = 'controlChartCanvas_' + i;
-        controlChartContainer.appendChild(canvasObservaciones);
-        const canvasRangos = document.createElement('canvas');
-        canvasRangos.id = 'rangeChartCanvas_' + i;
-        controlChartContainer.appendChild(canvasRangos);
+    var table = document.getElementById('tablaContainer').getElementsByTagName('table')[0];
+    var rows = table.rows.length;
+    var cols = table.rows[0].cells.length;
+
+    var datasets = [];
+    for (var j = 0; j < cols; j++) {
+        var data = [];
+        for (var i = 1; i < rows; i++) {
+            var value = parseFloat(table.rows[i].cells[j].textContent);
+            if (!isNaN(value)) {
+                data.push(value);
+            }
+        }
+        datasets.push(data);
     }
-    for (let i = 0; i < columnas; i++) {
-        generateControlChart(i);
-        generateRangeChart(i);
-    }
+
+    var controlChartContainer = document.getElementById('controlChartContainer');
+    controlChartContainer.innerHTML = '';
+
+    datasets.forEach((data, index) => {
+        var canvas = document.createElement('canvas');
+        canvas.className = 'controlChartCanvas';
+        controlChartContainer.appendChild(canvas);
+
+        var ctx = canvas.getContext('2d');
+
+        var mean = data.reduce((sum, value) => sum + value, 0) / data.length;
+        var variance = data.reduce((sum, value) => sum + (value - mean) ** 2, 0) / data.length;
+        var stdDev = Math.sqrt(variance);
+
+        var upperControlLimit = mean + 3 * stdDev;
+        var lowerControlLimit = mean - 3 * stdDev;
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({ length: data.length }, (_, i) => i + 1),
+                datasets: [{
+                    label: `Variable ${index + 1}`,
+                    data: data,
+                    borderColor: 'blue',
+                    fill: false
+                }, {
+                    label: 'Límite Superior de Control (UCL)',
+                    data: Array(data.length).fill(upperControlLimit),
+                    borderColor: 'red',
+                    borderDash: [5, 5],
+                    fill: false
+                }, {
+                    label: 'Límite Inferior de Control (LCL)',
+                    data: Array(data.length).fill(lowerControlLimit),
+                    borderColor: 'red',
+                    borderDash: [5, 5],
+                    fill: false
+                }, {
+                    label: 'Media',
+                    data: Array(data.length).fill(mean),
+                    borderColor: 'green',
+                    borderDash: [5, 5],
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: `Gráfico de Control - Variable ${index + 1}`
+                }
+            }
+        });
+    });
+
     document.getElementById('borrarControlChartsButton').style.display = 'inline-block';
 }
 
 function borrarControlCharts() {
-    const controlChartContainer = document.getElementById('controlChartContainer');
-    controlChartContainer.innerHTML = '';
+    document.getElementById('controlChartContainer').innerHTML = '';
     document.getElementById('borrarControlChartsButton').style.display = 'none';
 }
 
-function generateControlChart(columnIndex) {
-    const tabla = document.querySelector('#tablaContainer table');
-    const data = [];
-    for (let i = 1; i < tabla.rows.length; i++) {
-        const cellValue = parseFloat(tabla.rows[i].cells[columnIndex].textContent.trim());
-        if (!isNaN(cellValue)) {
-            data.push(cellValue);
-        }
-    }
-    if (data.length === 0) {
-        console.error('No hay suficientes datos válidos para calcular los límites de control.');
-        return;
-    }
-    const ranges = [];
-    for (let i = 1; i < data.length; i++) {
-        ranges.push(Math.abs(data[i] - data[i - 1]));
-    }
-    const meanRange = ranges.reduce((sum, value) => sum + value, 0) / ranges.length;
-    const d2 = 1.128;
-    const mean = data.reduce((sum, value) => sum + value, 0) / data.length;
-    const UCLx = mean + 3 * (meanRange / d2);
-    const LCLx = mean - 3 * (meanRange / d2);
 
-    let canvas = document.getElementById('controlChartCanvas_' + columnIndex);
-    if (!canvas) {
-        canvas = document.createElement('canvas');
-        canvas.id = 'controlChartCanvas_' + columnIndex;
-        document.getElementById('controlChartContainer').appendChild(canvas);
-    }
+function linearRegression(x, y) {
+    var n = x.length;
+    var sumX = x.reduce((a, b) => a + b, 0);
+    var sumY = y.reduce((a, b) => a + b, 0);
+    var sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
+    var sumX2 = x.reduce((sum, xi) => sum + xi * xi, 0);
 
-    canvas.width = 400;
-    canvas.height = 200;
-    const ctx = canvas.getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: data.map((_, i) => i + 1),
-            datasets: [
-                {
-                    label: 'Observaciones',
-                    data: data,
-                    borderColor: 'blue',
-                    fill: false,
-                    borderWidth: 1,
-                },
-                {
-                    label: 'Límite Superior de Control',
-                    data: new Array(data.length).fill(UCLx),
-                    borderColor: 'red',
-                    borderDash: [5, 5],
-                    fill: false,
-                    borderWidth: 1,
-                },
-                {
-                    label: 'Límite Inferior de Control',
-                    data: new Array(data.length).fill(LCLx),
-                    borderColor: 'red',
-                    borderDash: [5, 5],
-                    fill: false,
-                    borderWidth: 1,
-                },
-                {
-                    label: 'Línea Central',
-                    data: new Array(data.length).fill(mean),
-                    borderColor: 'green',
-                    borderDash: [5, 5],
-                    fill: false,
-                    borderWidth: 1,
-                },
-            ],
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            title: {
-                display: true,
-                text: `Gráfico de Control - Columna ${columnIndex + 1}`,
-            },
-        },
-    });
-}
+    var slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+    var intercept = (sumY - slope * sumX) / n;
 
-function generateRangeChart(columnIndex) {
-    const tabla = document.querySelector('#tablaContainer table');
-    const data = [];
-    for (let i = 1; i < tabla.rows.length; i++) {
-        const cellValue = parseFloat(tabla.rows[i].cells[columnIndex].textContent.trim());
-        if (!isNaN(cellValue)) {
-            data.push(cellValue);
-        }
-    }
-    if (data.length < 2) {
-        console.error('No hay suficientes datos válidos para calcular los rangos.');
-        return;
-    }
-    const ranges = [];
-    for (let i = 1; i < data.length; i++) {
-        ranges.push(Math.abs(data[i] - data[i - 1]));
-    }
-    const meanRange = ranges.reduce((sum, value) => sum + value, 0) / ranges.length;
-    const D3 = 0;
-    const D4 = 2.114;
-    const UCLr = D4 * meanRange;
-    const LCLr = D3 * meanRange;
-
-    let canvas = document.getElementById('rangeChartCanvas_' + columnIndex);
-    if (!canvas) {
-        canvas = document.createElement('canvas');
-        canvas.id = 'rangeChartCanvas_' + columnIndex;
-        document.getElementById('controlChartContainer').appendChild(canvas);
-    }
-
-    canvas.width = 400;
-    canvas.height = 200;
-    const ctx = canvas.getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ranges.map((_, i) => i + 1),
-            datasets: [
-                {
-                    label: 'Rangos',
-                    data: ranges,
-                    borderColor: 'blue',
-                    fill: false,
-                    borderWidth: 1,
-                },
-                {
-                    label: 'Límite Superior de Control',
-                    data: new Array(ranges.length).fill(UCLr),
-                    borderColor: 'red',
-                    borderDash: [5, 5],
-                    fill: false,
-                    borderWidth: 1,
-                },
-                {
-                    label: 'Límite Inferior de Control',
-                    data: new Array(ranges.length).fill(LCLr),
-                    borderColor: 'red',
-                    borderDash: [5, 5],
-                    fill: false,
-                    borderWidth: 1,
-                },
-                {
-                    label: 'Línea Central',
-                    data: new Array(ranges.length).fill(meanRange),
-                    borderColor: 'green',
-                    borderDash: [5, 5],
-                    fill: false,
-                    borderWidth: 1,
-                },
-            ],
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            title: {
-                display: true,
-                text: `Gráfico de Rangos - Columna ${columnIndex + 1}`,
-            },
-        },
-    });
-}
-
-function populateColumnSelects() {
-    const tabla = document.querySelector('#tablaContainer table');
-    if (!tabla) return;
-
-    const selectX = document.getElementById('selectX');
-    const selectY = document.getElementById('selectY');
-    selectX.innerHTML = '';
-    selectY.innerHTML = '';
-
-    const columns = tabla.rows[0].cells.length;
-    for (let i = 0; i < columns; i++) {
-        const columnName = tabla.rows[0].cells[i].textContent.trim() || `Columna ${i + 1}`;
-        const optionX = document.createElement('option');
-        const optionY = document.createElement('option');
-        optionX.value = i;
-        optionX.textContent = columnName;
-        optionY.value = i;
-        optionY.textContent = columnName;
-        selectX.appendChild(optionX);
-        selectY.appendChild(optionY);
-    }
+    return { slope: slope, intercept: intercept };
 }
 
 function generarDiagramaDispersion() {
-    const tabla = document.querySelector('#tablaContainer table');
-    if (!tabla) return;
+    var table = document.getElementById('tablaContainer').getElementsByTagName('table')[0];
+    var rows = table.rows.length;
 
-    const selectX = document.getElementById('selectX');
-    const selectY = document.getElementById('selectY');
-    const colX = parseInt(selectX.value);
-    const colY = parseInt(selectY.value);
+    var selectX = document.getElementById('selectX');
+    var selectY = document.getElementById('selectY');
+    var xIndex = selectX.selectedIndex;
+    var yIndex = selectY.selectedIndex;
 
-    const dataX = [];
-    const dataY = [];
+    var dataX = [];
+    var dataY = [];
 
-    for (let i = 1; i < tabla.rows.length; i++) {
-        const valX = parseFloat(tabla.rows[i].cells[colX].textContent.trim());
-        const valY = parseFloat(tabla.rows[i].cells[colY].textContent.trim());
-        if (!isNaN(valX) && !isNaN(valY)) {
-            dataX.push(valX);
-            dataY.push(valY);
+    for (var i = 1; i < rows; i++) {
+        var valueX = parseFloat(table.rows[i].cells[xIndex].textContent);
+        var valueY = parseFloat(table.rows[i].cells[yIndex].textContent);
+        if (!isNaN(valueX) && !isNaN(valueY)) {
+            dataX.push(valueX);
+            dataY.push(valueY);
         }
     }
 
-    const ctx = document.getElementById('scatterPlotCanvas').getContext('2d');
+    var scatterPlotCanvas = document.getElementById('scatterPlotCanvas');
+    var ctx = scatterPlotCanvas.getContext('2d');
 
-    // Eliminar el gráfico existente si lo hay
-    if (window.scatterPlot) {
-        window.scatterPlot.destroy();
+    if (scatterPlotCanvas.scatterChart) {
+        scatterPlotCanvas.scatterChart.destroy();
     }
 
-    // Generar el nuevo gráfico de dispersión
-    window.scatterPlot = new Chart(ctx, {
+    var scatterData = dataX.map((x, i) => ({ x: x, y: dataY[i] }));
+    var regression = linearRegression(dataX, dataY);
+    var trendlineData = dataX.map(x => ({ x: x, y: regression.slope * x + regression.intercept }));
+
+    scatterPlotCanvas.scatterChart = new Chart(ctx, {
         type: 'scatter',
         data: {
             datasets: [{
-                label: 'Datos',
-                data: dataX.map((x, i) => ({ x, y: dataY[i] })),
-                backgroundColor: 'blue'
+                label: 'Diagrama de Dispersión',
+                data: scatterData,
+                borderColor: 'blue',
+                backgroundColor: 'rgba(0, 123, 255, 0.5)'
+            }, {
+                label: 'Línea de Tendencia',
+                data: trendlineData,
+                type: 'line',
+                borderColor: 'red',
+                fill: false,
+                showLine: true,
+                tension: 0
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `X: ${context.raw.x}, Y: ${context.raw.y}`;
-                        }
-                    }
-                }
+            title: {
+                display: true,
+                text: 'Diagrama de Dispersión con Línea de Tendencia'
             },
             scales: {
                 x: {
+                    type: 'linear',
+                    position: 'bottom',
                     title: {
                         display: true,
-                        text: selectX.options[selectX.selectedIndex].text
+                        text: selectX.options[xIndex].text
                     }
                 },
                 y: {
                     title: {
                         display: true,
-                        text: selectY.options[selectY.selectedIndex].text
+                        text: selectY.options[yIndex].text
                     }
                 }
             }
         }
     });
 
-    // Calcular correlación y línea de tendencia
-    calcularCorrelacion(dataX, dataY);
+    var correlation = calculateCorrelation(dataX, dataY);
+    document.getElementById('correlationResults').textContent = `Correlación: ${correlation.toFixed(2)}`;
+
+    document.getElementById('borrarDiagramaButton').style.display = 'inline-block';
 }
 
-function calcularCorrelacion(dataX, dataY) {
-    const n = dataX.length;
-    const sumX = dataX.reduce((a, b) => a + b, 0);
-    const sumY = dataY.reduce((a, b) => a + b, 0);
-    const sumXY = dataX.reduce((sum, x, i) => sum + x * dataY[i], 0);
-    const sumX2 = dataX.reduce((sum, x) => sum + x * x, 0);
-
-    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-    const intercept = (sumY - slope * sumX) / n;
-
-    const meanX = sumX / n;
-    const meanY = sumY / n;
-    const ssXX = dataX.reduce((sum, x) => sum + (x - meanX) * (x - meanX), 0);
-    const ssYY = dataY.reduce((sum, y) => sum + (y - meanY) * (y - meanY), 0);
-    const ssXY = dataX.reduce((sum, x, i) => sum + (x - meanX) * (dataY[i] - meanY), 0);
-
-    const r = ssXY / Math.sqrt(ssXX * ssYY);
-    const r2 = r * r;
-
-    document.getElementById('correlationResults').innerHTML = `
-        <p>Coeficiente de Correlación (r): ${r.toFixed(4)}</p>
-        <p>Coeficiente de Determinación (r²): ${r2.toFixed(4)}</p>
-    `;
-
-    calcularLineaTendencia(slope, intercept, dataX);
-}
-
-function calcularLineaTendencia(slope, intercept, dataX) {
-    // Calcular la línea de tendencia
-    const regressionLine = dataX.map(x => ({ x, y: slope * x + intercept }));
-
-    // Obtener el gráfico de dispersión
-
-    // Actualizar el conjunto de datos con la línea de tendencia
-    window.scatterPlot.data.datasets.push({
-        label: 'Línea de Tendencia',
-        data: regressionLine,
-        type: 'line',
-        borderColor: 'red',
-        borderWidth: 1,
-        fill: false,
-        pointRadius: 0,
-    });
-
-    // Actualizar el gráfico
-    window.scatterPlot.update();
-}
 
 function borrarDiagramaDispersion() {
-    const scatterPlotCanvas = document.getElementById('scatterPlotCanvas');
-    const scatterPlotCtx = scatterPlotCanvas.getContext('2d');
-    const width = scatterPlotCanvas.width;
-    const height = scatterPlotCanvas.height;
-
-    scatterPlotCtx.clearRect(0, 0, width, height);
-    document.getElementById('correlationResults').innerHTML = '';
+    var scatterPlotCanvas = document.getElementById('scatterPlotCanvas');
+    scatterPlotCanvas.getContext('2d').clearRect(0, 0, scatterPlotCanvas.width, scatterPlotCanvas.height);
+    if (scatterPlotCanvas.scatterChart) {
+        scatterPlotCanvas.scatterChart.destroy();
+    }
+    document.getElementById('correlationResults').textContent = '';
+    document.getElementById('borrarDiagramaButton').style.display = 'none';
 }
 
-window.onload = conectarEventos;
+function calculateCorrelation(x, y) {
+    var n = x.length;
+    var sumX = x.reduce((a, b) => a + b, 0);
+    var sumY = y.reduce((a, b) => a + b, 0);
+    var sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
+    var sumX2 = x.reduce((sum, xi) => sum + xi * xi, 0);
+    var sumY2 = y.reduce((sum, yi) => sum + yi * yi, 0);
 
+    var numerator = (n * sumXY) - (sumX * sumY);
+    var denominator = Math.sqrt(((n * sumX2) - (sumX * sumX)) * ((n * sumY2) - (sumY * sumY)));
 
+    return numerator / denominator;
+}
 
+function populateColumnSelects() {
+    var table = document.getElementById('tablaContainer').getElementsByTagName('table')[0];
+    var columnas = table.rows[0].cells.length;
+    var selectX = document.getElementById('selectX');
+    var selectY = document.getElementById('selectY');
+
+    selectX.innerHTML = '';
+    selectY.innerHTML = '';
+
+    for (var j = 0; j < columnas; j++) {
+        var option = document.createElement('option');
+        option.text = `Variable ${j + 1}`;
+        selectX.add(option);
+        var optionClone = option.cloneNode(true);
+        selectY.add(optionClone);
+    }
+}

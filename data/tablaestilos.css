@@ -104,17 +104,15 @@ table td {
     margin-top: 20px; /* Ajustamos el margen superior */
 }
 
-/* Resto del CSS sigue igual */
-
 .controlChartContainer {
     margin-top: 20px;
     text-align: center;
 }
 
 .controlChartCanvas {
-    max-width: 600px;
+    max-width: 400px;
     width: 80%;
-    height: auto;
+    height: 200px;
     margin: 0 auto;
     display: block;
 }
