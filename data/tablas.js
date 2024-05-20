@@ -4,138 +4,147 @@ function generarTabla() {
 
     var tabla = '<table>';
 
-    // Agregar una fila adicional para los encabezados de columna
-    tabla += '<tr>';
-    tabla += '<th></th>'; // Celda vacía para la esquina superior izquierda
-    for (var j = 1; j <= columnas; j++) {
-        tabla += `<th contenteditable="true">Columna ${j}</th>`; // Encabezados de columna editables
+    // Celda vacía para la esquina superior izquierda
+    for (var j = 0; j < columnas; j++) {
+        tabla += `<th contenteditable="true"></th>`; // Encabezados de columna editables vacíos
     }
     tabla += '</tr>';
 
-    for (var i = 1; i <= filas; i++) {
+    for (var i = 0; i < filas; i++) {
         tabla += '<tr>';
-        tabla += `<th contenteditable="true">Fila ${i}</th>`; // Encabezado de fila editable
-        for (var j = 1; j <= columnas; j++) {
-            tabla += `<td contenteditable="true">Valor ${i}-${j}</td>`; // Celdas de datos
+        for (var j = 0; j < columnas; j++) {
+            tabla += `<td contenteditable="true"></td>`; // Celdas de datos vacías y editables
         }
         tabla += '</tr>';
     }
 
     tabla += '</table>';
 
-    // Agregar botones para el histograma y eliminar tabla
+    // Agregar botón para eliminar tabla y generar histograma
     tabla += '<div class="button-group">';
-    tabla += '<button onclick="crearHistograma()">Histograma</button>';
-    tabla += '<span class="button-spacing"></span>'; // Espaciador entre botones
     tabla += '<button onclick="borrarTabla()">Borrar Tabla</button>';
+    tabla += '<span style="margin-left: 10px;"></span>'; // Espacio entre los botones
+    tabla += '<button onclick="generateControlCharts()">Generar Gráficas de Control</button>';
+    tabla += '<button onclick="borrarControlCharts()" id="borrarControlChartsButton" style="display: none;">Borrar Gráficas</button>'; // Botón para borrar gráficas de control oculto por defecto
     tabla += '</div>';
 
     document.getElementById('tablaContainer').innerHTML = tabla;
+}
 
-    // Crear el histograma después de generar la tabla
-    crearHistograma();
+function generarDatos() {
+    var tabla = document.getElementById('tablaContainer').getElementsByTagName('table')[0];
+    var filas = tabla.rows.length;
+
+    for (var i = 1; i < filas; i++) { // Comienza desde la fila 1
+        var row = tabla.rows[i];
+        var columnas = row.cells.length;
+
+        for (var j = 0; j < columnas; j++) { // Comienza desde la columna 0
+            var valor = Math.floor(Math.random() * (40 - 1 + 1)) + 1; // Generar valor aleatorio entre 1 y 40 para todas las columnas
+            row.cells[j].textContent = valor;
+        }
+    }
 }
 
 function borrarTabla() {
     document.getElementById('tablaContainer').innerHTML = '';
 
-    // Si hay un histograma, también lo borramos
-    if (typeof histograma !== 'undefined') {
-        borrarHistograma();
-    }
+    // Si hay gráficas de control, también las borramos
+    borrarControlCharts();
 }
 
-function crearHistograma() {
-    // Verificar si ya hay un histograma
-    if (typeof histograma !== 'undefined') {
-        borrarHistograma(); // Destruir el histograma existente
+function generateControlCharts() {
+    // Borrar gráficas de control existentes
+    borrarControlCharts();
+
+    // Obtener la tabla
+    const tabla = document.querySelector('#tablaContainer table');
+    if (!tabla) return;
+
+    // Obtener el número de columnas
+    const columnas = tabla.rows[0].cells.length;
+
+    // Crear contenedores para las gráficas de control
+    const controlChartContainer = document.getElementById('controlChartContainer');
+    for (let i = 0; i < columnas; i++) {
+        const canvas = document.createElement('canvas');
+        canvas.id = 'controlChartCanvas_' + i;
+        controlChartContainer.appendChild(canvas);
     }
 
-    var tabla = document.getElementById('tablaContainer').getElementsByTagName('table')[0];
-    var data = [];
-    var rowTitles = [];
-    var columnTitles = [];
-
-    // Recorrer las celdas de la tabla y obtener los valores
-    for (var i = 1; i < tabla.rows.length; i++) {
-        var rowData = [];
-        var rowTitle = tabla.rows[i].cells[0].textContent.trim(); // Obtener el título de la fila
-        rowTitles.push(rowTitle);
-
-        for (var j = 1; j < tabla.rows[i].cells.length; j++) {
-            if (i === 1) {
-                var columnTitle = tabla.rows[0].cells[j].textContent.trim(); // Obtener el título de la columna
-                columnTitles.push(columnTitle);
-            }
-
-            var cell = tabla.rows[i].cells[j];
-            var value = parseFloat(cell.textContent.trim());
-            if (!isNaN(value)) {
-                rowData.push(value);
-            }
-        }
-        data.push(rowData);
+    // Generar gráficas de control para cada columna
+    for (let i = 0; i < columnas; i++) {
+        generateControlChart(i);
     }
 
-    // Preparar los datos para el histograma
-    var datasets = [];
-    for (var i = 0; i < data.length; i++) {
-        datasets.push({
-            label: rowTitles[i], // Usar el título de la fila como etiqueta para el conjunto de datos
-            data: data[i],
-            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            borderColor: 'rgba(255, 99, 132, 1)',
-            borderWidth: 1
-        });
-    }
+    // Mostrar el botón para borrar las gráficas de control
+    document.getElementById('borrarControlChartsButton').style.display = 'inline-block';
+}
 
-    // Configurar opciones del histograma
-    var histogramaOptions = {
-        scales: {
-            y: {
-                beginAtZero: true,
-                title: {
-                    display: true,
-                    text: 'Frecuencia'
-                }
-            },
-            x: {
-                title: {
-                    display: true,
-                    text: 'Intervalo'
+function borrarControlCharts() {
+    // Borrar las gráficas de control
+    const controlChartContainer = document.getElementById('controlChartContainer');
+    controlChartContainer.innerHTML = '';
+
+    // Ocultar el botón para borrar las gráficas de control
+    document.getElementById('borrarControlChartsButton').style.display = 'none';
+}
+
+function generateControlChart(columnIndex) {
+    // Obtener la tabla y los datos para la columna específica
+    const tabla = document.querySelector('#tablaContainer table');
+    const data = Array.from(tabla.rows).map(row => parseFloat(row.cells[columnIndex].textContent.trim()));
+
+    const headerCells = tabla.rows[0].cells;
+    const columnName = headerCells[columnIndex].textContent.trim();
+
+    // Configurar los límites de control (valores fijos para este ejemplo)
+    const UCL = 35;
+    const LCL = 15;
+
+    // Obtener el contexto del canvas
+    const ctx = document.getElementById('controlChartCanvas_' + columnIndex).getContext('2d');
+
+    // Crear la gráfica de control
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: Array.from(Array(data.length).keys()),
+            datasets: [{
+                label: 'Datos',
+                data: data,
+                borderColor: 'blue',
+                fill: false
+            }, {
+                label: 'UCL',
+                data: new Array(data.length).fill(UCL),
+                borderColor: 'red',
+                borderDash: [5, 5],
+                fill: false
+            }, {
+                label: 'LCL',
+                data: new Array(data.length).fill(LCL),
+                borderColor: 'green',
+                borderDash: [5, 5],
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Muestra'
+                    }
                 },
-                ticks: {
-                    callback: function(value, index) {
-                        return columnTitles[index] || ''; // Mostrar título de columna o vacío si no hay título
+                y: {
+                    title: {
+                        display: true,
+                        text: columnName
                     }
                 }
             }
         }
-    };
-
-    // Obtener el contexto del canvas
-    var ctx = document.getElementById('histogramaCanvas').getContext('2d');
-
-    // Crear el histograma
-    histograma = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: Array.from(Array(columnTitles.length).keys()), // Usar índices como etiquetas en el eje X
-            datasets: datasets
-        },
-        options: histogramaOptions
     });
-
-    // Mostrar el botón para borrar el histograma
-    document.getElementById('borrarHistogramaButton').style.display = 'block';
-}
-
-function borrarHistograma() {
-    // Borrar el histograma
-    if (typeof histograma !== 'undefined') {
-        histograma.destroy(); // Destruir el histograma
-    }
-
-    // Ocultar el botón para borrar el histograma
-    document.getElementById('borrarHistogramaButton').style.display = 'none';
 }

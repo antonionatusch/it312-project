@@ -19,22 +19,25 @@
         <h1>Generador de Tablas</h1>
         <div class="button-group">
             <button onclick="generarTabla()">Generar Tabla</button>
+            <button onclick="generarDatos()">Generar Datos</button>
+            <button onclick="generateControlCharts()">Generar Gráficas de Control</button> <!-- Nuevo botón para generar gráficas de control -->
+            <button onclick="borrarControlCharts()" id="borrarControlChartsButton" style="display: none;">Borrar Gráficas</button> <!-- Botón para borrar gráficas de control oculto por defecto -->
         </div>
     </div>
     <div class="input-group">
         <label for="filas">Filas:</label>
         <input type="number" id="filas" min="1" value="0">
         <label for="columnas">Columnas:</label>
-        <input type="number" id="columnas" min="1" value="0">
+        <input type="number" id="columnas" min="1"  value="0">
     </div>
 </div>
 
 <div id="tablaContainer"></div>
 
-<!-- Elemento para dibujar el histograma -->
-<div id="histogramaContainer">
-    <canvas id="histogramaCanvas"></canvas>
-    <button onclick="borrarHistograma()" id="borrarHistogramaButton" style="display: none;">Borrar Histograma</button>
+<div class="chart-container">
+    <div id="controlChartContainer">
+        <!-- Canvas para las gráficas de control -->
+    </div>
 </div>
 
 <script src="tablas.js"></script>

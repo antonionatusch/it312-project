@@ -26,7 +26,6 @@ header {
     background-color: #cc0000; /* Cambiamos el color de fondo a un tono más oscuro al pasar el cursor */
 }
 
-
 .container {
     max-width: 600px;
     margin: 50px auto;
@@ -48,7 +47,7 @@ header {
 }
 
 .button-group button {
-    padding: 10px 20px;
+    padding: 10px 15px;
     border: none;
     border-radius: 5px;
     background-color: #007bff;
@@ -90,11 +89,6 @@ table td {
     background-color: #fff;
 }
 
-.button-spacing {
-    display: inline-block;
-    width: 10px; /* Adjust as needed */
-}
-
 #histogramaCanvas {
     max-width: 400px; /* Reducir el ancho máximo del canvas */
     width: 50%; /* Hacer que el canvas ocupe todo el ancho disponible */
@@ -103,4 +97,27 @@ table td {
     display: block; /* Cambiar la visualización a bloque para asegurar el ancho máximo */
     margin-left: 20px;
 }
+
+.button-group-generar-datos {
+    display: flex;
+    justify-content: flex-end; /* Mover el botón hacia la derecha */
+    margin-top: 20px; /* Ajustamos el margen superior */
+}
+
+/* Resto del CSS sigue igual */
+
+#controlChartContainer {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#controlChartCanvas {
+    max-width: 600px;
+    width: 80%;
+    height: auto;
+    margin: 0 auto;
+    display: block;
+}
+
+
 
