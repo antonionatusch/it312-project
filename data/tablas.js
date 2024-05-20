@@ -235,7 +235,7 @@ function generateControlChart(columnIndex) {
                 y: {
                     title: {
                         display: true,
-                        text: 'Valor'
+                        text: 'Valor' // cambiarlo a nombre de columna
                     }
                 }
             }
