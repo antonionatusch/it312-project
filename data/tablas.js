@@ -4,7 +4,7 @@ function generarTabla() {
 
     var tabla = '<table>';
 
-    // Celda vacía para la esquina superior izquierda
+
     for (var j = 0; j < columnas; j++) {
         tabla += `<th contenteditable="true"></th>`; // Encabezados de columna editables vacíos
     }
