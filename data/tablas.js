@@ -88,9 +88,6 @@ function generarDatos() {
 
 
 
-
-
-
 function borrarTabla() {
     document.getElementById('tablaContainer').innerHTML = '';
 
