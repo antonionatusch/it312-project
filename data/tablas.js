@@ -112,14 +112,21 @@ function generateControlCharts() {
     // Crear contenedores para las gráficas de control
     const controlChartContainer = document.getElementById('controlChartContainer');
     for (let i = 0; i < columnas; i++) {
-        const canvas = document.createElement('canvas');
-        canvas.id = 'controlChartCanvas_' + i;
-        controlChartContainer.appendChild(canvas);
+        // Canvas para la gráfica de observaciones individuales
+        const canvasObservaciones = document.createElement('canvas');
+        canvasObservaciones.id = 'controlChartCanvas_' + i;
+        controlChartContainer.appendChild(canvasObservaciones);
+
+        // Canvas para la gráfica de rangos móviles
+        const canvasRangos = document.createElement('canvas');
+        canvasRangos.id = 'rangeChartCanvas_' + i;
+        controlChartContainer.appendChild(canvasRangos);
     }
 
     // Generar gráficas de control para cada columna
     for (let i = 0; i < columnas; i++) {
         generateControlChart(i);
+        generateRangeChart(i); // Generar la gráfica de rangos móviles
     }
 
     // Mostrar el botón para borrar las gráficas de control
@@ -178,7 +185,7 @@ function generateControlChart(columnIndex) {
     console.log(UCLx);
     console.log(LCLx);
 
-    // Obtener o crear el canvas para la gráfica de control
+    // Obtener o crear el canvas para la gráfica de control de observaciones individuales
     let canvas = document.getElementById('controlChartCanvas_' + columnIndex);
     if (!canvas) {
         canvas = document.createElement('canvas');
@@ -192,13 +199,13 @@ function generateControlChart(columnIndex) {
     // Obtener el contexto del canvas
     const ctx = canvas.getContext('2d');
 
-    // Crear la gráfica de control
+    // Crear la gráfica de control de observaciones individuales
     new Chart(ctx, {
         type: 'line',
         data: {
             labels: Array.from(Array(data.length).keys()),
             datasets: [{
-                label: 'Datos',
+                label: 'Observaciones',
                 data: data,
                 borderColor: 'blue',
                 fill: false
@@ -211,6 +218,105 @@ function generateControlChart(columnIndex) {
             }, {
                 label: 'LCLx',
                 data: new Array(data.length).fill(LCLx), // Llenar el arreglo con el valor de LCLx
+                borderColor: 'green',
+                borderDash: [5, 5],
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Muestra'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Valor'
+                    }
+                }
+            }
+        }
+    });
+}
+
+
+function generateRangeChart(columnIndex) {
+    // Obtener la tabla y los datos para la columna específica
+    const tabla = document.querySelector('#tablaContainer table');
+
+    // Crear un array para almacenar los datos numéricos
+    const data = [];
+    for (let i = 1; i < tabla.rows.length; i++) {
+        const cellValue = parseFloat(tabla.rows[i].cells[columnIndex].textContent.trim());
+
+        // Verificar si el valor es un número válido antes de agregarlo al array
+        if (!isNaN(cellValue)) {
+            data.push(cellValue);
+        }
+    }
+
+    // Verificar si hay suficientes datos para calcular los límites de control
+    if (data.length === 0) {
+        console.error('No hay suficientes datos válidos para calcular los límites de control.');
+        return;
+    }
+
+    // Calcular los rangos
+    const ranges = [];
+    for (let i = 1; i < data.length; i++) {
+        ranges.push(Math.abs(data[i] - data[i - 1])); // Tomar el valor absoluto de la diferencia
+    }
+
+    // Calcular la media de los rangos
+    const meanRange = ranges.reduce((sum, value) => sum + value, 0) / ranges.length;
+    console.log(meanRange)
+    // Calcular el factor d2 (valor para n=2)
+    const d2 = 1.128;
+
+    // Calcular los límites de control para rangos móviles
+    const UCLR = meanRange + 3 * (meanRange / d2);
+    const LCLR = Math.max(0, meanRange - 3 * (meanRange / d2));
+
+    console.log(UCLR);
+    console.log(LCLR);
+
+    // Obtener o crear el canvas para la gráfica de rangos móviles
+    let canvas = document.getElementById('rangeChartCanvas_' + columnIndex);
+    if (!canvas) {
+        canvas = document.createElement('canvas');
+        canvas.id = 'rangeChartCanvas_' + columnIndex;
+        document.getElementById('controlChartContainer').appendChild(canvas);
+    }
+
+    canvas.width = canvas.parentElement.clientWidth; // Ajustar el ancho del canvas al contenedor
+    canvas.height = 400; // Establecer una altura fija para el canvas
+
+    // Obtener el contexto del canvas
+    const ctx = canvas.getContext('2d');
+
+    // Crear la gráfica de control de rangos móviles
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: Array.from(Array(ranges.length).keys()),
+            datasets: [{
+                label: 'Rangos',
+                data: ranges,
+                borderColor: 'blue',
+                fill: false
+            }, {
+                label: 'UCLR',
+                data: new Array(ranges.length).fill(UCLR), // Llenar el arreglo con el valor de UCLR
+                borderColor: 'red',
+                borderDash: [5, 5],
+                fill: false
+            }, {
+                label: 'LCLR',
+                data: new Array(ranges.length).fill(LCLR), // Llenar el arreglo con el valor de LCLR
                 borderColor: 'green',
                 borderDash: [5, 5],
                 fill: false
