@@ -40,11 +40,20 @@ function generarDatos() {
         var columnas = row.cells.length;
 
         for (var j = 0; j < columnas; j++) { // Comienza desde la columna 0
-            var valor = Math.floor(Math.random() * (40 - 1 + 1)) + 1; // Generar valor aleatorio entre 1 y 40 para todas las columnas
+            // Generar un valor aleatorio dentro del rango ±0.5 alrededor de un valor central
+            var valorCentral = 125; // Valor central para el ejemplo
+            var variabilidad = 0.5; // Variabilidad permitida
+            var valor = valorCentral + (Math.random() * 2 - 1) * variabilidad;
+
+            // Redondear el valor a un decimal
+            valor = Math.round(valor * 10) / 10;
+
+            // Asignar el valor generado a la celda
             row.cells[j].textContent = valor;
         }
     }
 }
+
 
 function borrarTabla() {
     document.getElementById('tablaContainer').innerHTML = '';
@@ -93,17 +102,59 @@ function borrarControlCharts() {
 function generateControlChart(columnIndex) {
     // Obtener la tabla y los datos para la columna específica
     const tabla = document.querySelector('#tablaContainer table');
-    const data = Array.from(tabla.rows).map(row => parseFloat(row.cells[columnIndex].textContent.trim()));
 
-    const headerCells = tabla.rows[0].cells;
-    const columnName = headerCells[columnIndex].textContent.trim();
+    // Crear un array para almacenar los datos numéricos
+    const data = [];
+    for (let i = 1; i < tabla.rows.length; i++) {
+        const cellValue = parseFloat(tabla.rows[i].cells[columnIndex].textContent.trim());
 
-    // Configurar los límites de control (valores fijos para este ejemplo)
-    const UCL = 35;
-    const LCL = 15;
+        // Verificar si el valor es un número válido antes de agregarlo al array
+        if (!isNaN(cellValue)) {
+            data.push(cellValue);
+        }
+    }
+
+    // Verificar si hay suficientes datos para calcular los límites de control
+    if (data.length === 0) {
+        console.error('No hay suficientes datos válidos para calcular los límites de control.');
+        return;
+    }
+
+    // Calcular los rangos
+    const ranges = [];
+    for (let i = 1; i < data.length; i++) {
+        ranges.push(Math.abs(data[i] - data[i - 1])); // Tomar el valor absoluto de la diferencia
+    }
+
+    // Calcular la media de los rangos
+    const meanRange = ranges.reduce((sum, value) => sum + value, 0) / ranges.length;
+    console.log(meanRange)
+    // Calcular el factor d2 (valor para n=2)
+    const d2 = 1.128;
+
+    // Calcular la media de los datos
+    const mean = data.reduce((sum, value) => sum + value, 0) / data.length;
+
+    // Calcular los límites de control para observaciones individuales
+    const UCLx = mean + 3 * (meanRange / d2);
+    const LCLx = mean - 3 * (meanRange / d2);
+
+    console.log(UCLx);
+    console.log(LCLx);
+
+    // Obtener o crear el canvas para la gráfica de control
+    let canvas = document.getElementById('controlChartCanvas_' + columnIndex);
+    if (!canvas) {
+        canvas = document.createElement('canvas');
+        canvas.id = 'controlChartCanvas_' + columnIndex;
+        document.getElementById('controlChartContainer').appendChild(canvas);
+    }
+
+    canvas.width = canvas.parentElement.clientWidth; // Ajustar el ancho del canvas al contenedor
+    canvas.height = 400; // Establecer una altura fija para el canvas
 
     // Obtener el contexto del canvas
-    const ctx = document.getElementById('controlChartCanvas_' + columnIndex).getContext('2d');
+    const ctx = canvas.getContext('2d');
 
     // Crear la gráfica de control
     new Chart(ctx, {
@@ -116,14 +167,14 @@ function generateControlChart(columnIndex) {
                 borderColor: 'blue',
                 fill: false
             }, {
-                label: 'UCL',
-                data: new Array(data.length).fill(UCL),
+                label: 'UCLx',
+                data: new Array(data.length).fill(UCLx), // Llenar el arreglo con el valor de UCLx
                 borderColor: 'red',
                 borderDash: [5, 5],
                 fill: false
             }, {
-                label: 'LCL',
-                data: new Array(data.length).fill(LCL),
+                label: 'LCLx',
+                data: new Array(data.length).fill(LCLx), // Llenar el arreglo con el valor de LCLx
                 borderColor: 'green',
                 borderDash: [5, 5],
                 fill: false
@@ -141,10 +192,22 @@ function generateControlChart(columnIndex) {
                 y: {
                     title: {
                         display: true,
-                        text: columnName
+                        text: 'Valor'
                     }
                 }
             }
         }
     });
 }
+
+
+
+
+
+
+
+
+
+
+
+
