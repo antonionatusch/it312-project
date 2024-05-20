@@ -119,5 +119,8 @@ table td {
     display: block;
 }
 
-
-
+.scatter-container {
+    width: 400px; /* Define el ancho deseado */
+    height: 400px; /* Define la altura deseada */
+    margin: 0 auto; /* Centra el contenedor horizontalmente */
+}
