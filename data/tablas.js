@@ -20,10 +20,7 @@ function generarTabla() {
     }
     tabla += '</table>';
     tabla += '<div class="button-group">';
-    tabla += '<button onclick="borrarTabla()">Borrar Tabla</button>';
-    tabla += '<span style="margin-left: 10px;"></span>';
     tabla += '<button onclick="generateControlCharts()">Generar Gráficas de Control</button>';
-    tabla += '<button onclick="borrarControlCharts()" id="borrarControlChartsButton" style="display: none;">Borrar Gráficas</button>';
     tabla += '</div>';
 
     document.getElementById('tablaContainer').innerHTML = tabla;
@@ -33,6 +30,7 @@ function generarTabla() {
 
     // Poblar selects para el diagrama de dispersión
     populateColumnSelects();
+    conectarEventos();
 }
 
 function generarDatos() {
@@ -80,11 +78,14 @@ function generarDatos() {
     }
 }
 
-function borrarTabla() {
-    document.getElementById('tablaContainer').innerHTML = '';
-    borrarControlCharts();
-    document.getElementById('generarDiagramaButton').style.display = 'none';
-    document.getElementById('scatterPlotContainer').style.display = 'none';
+function conectarEventos() {
+    // Eliminar eventos anteriores para evitar duplicados
+    document.getElementById('generarDiagramaButton').onclick = null;
+    document.getElementById('borrarDiagramaButton').onclick = null;
+
+    // Conectar eventos a los botones
+    document.getElementById('generarDiagramaButton').onclick = generarDiagramaDispersion;
+    document.getElementById('borrarDiagramaButton').onclick = borrarDiagramaDispersion;
 }
 
 function generateControlCharts() {
@@ -301,110 +302,6 @@ function populateColumnSelects() {
     }
 }
 
-
-/* function generarDiagramaDispersión() {
-    const tabla = document.querySelector('#tablaContainer table');
-    if (!tabla) return;
-
-    const selectX = document.getElementById('selectX');
-    const selectY = document.getElementById('selectY');
-    const colX = parseInt(selectX.value);
-    const colY = parseInt(selectY.value);
-
-    const dataX = [];
-    const dataY = [];
-
-    for (let i = 1; i < tabla.rows.length; i++) {
-        const valX = parseFloat(tabla.rows[i].cells[colX].textContent.trim());
-        const valY = parseFloat(tabla.rows[i].cells[colY].textContent.trim());
-        if (!isNaN(valX) && !isNaN(valY)) {
-            dataX.push(valX);
-            dataY.push(valY);
-        }
-    }
-
-    const ctx = document.getElementById('scatterPlotCanvas').getContext('2d');
-    const scatterData = {
-        datasets: [{
-            label: 'Datos',
-            data: dataX.map((x, i) => ({ x, y: dataY[i] })),
-            backgroundColor: 'blue'
-        }]
-    };
-
-    const scatterPlot = new Chart(ctx, {
-        type: 'scatter',
-        data: scatterData,
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `X: ${context.raw.x}, Y: ${context.raw.y}`;
-                        }
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    title: {
-                        display: true,
-                        text: selectX.options[selectX.selectedIndex].text
-                    }
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: selectY.options[selectY.selectedIndex].text
-                    }
-                }
-            }
-        }
-    });
-
-    // Calculando la línea de tendencia
-    const n = dataX.length;
-    const sumX = dataX.reduce((a, b) => a + b, 0);
-    const sumY = dataY.reduce((a, b) => a + b, 0);
-    const sumXY = dataX.reduce((sum, x, i) => sum + x * dataY[i], 0);
-    const sumX2 = dataX.reduce((sum, x) => sum + x * x, 0);
-
-    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-    const intercept = (sumY - slope * sumX) / n;
-
-    const regressionLine = dataX.map(x => ({ x, y: slope * x + intercept }));
-    scatterPlot.data.datasets.push({
-        label: 'Línea de Tendencia',
-        data: regressionLine,
-        type: 'line',
-        borderColor: 'red',
-        borderWidth: 1,
-        fill: false,
-        pointRadius: 0,
-    });
-    scatterPlot.update();
-
-    // Calculando el coeficiente de correlación
-    const meanX = sumX / n;
-    const meanY = sumY / n;
-    const ssXX = dataX.reduce((sum, x) => sum + (x - meanX) * (x - meanX), 0);
-    const ssYY = dataY.reduce((sum, y) => sum + (y - meanY) * (y - meanY), 0);
-    const ssXY = dataX.reduce((sum, x, i) => sum + (x - meanX) * (dataY[i] - meanY), 0);
-
-    const r = ssXY / Math.sqrt(ssXX * ssYY);
-    const r2 = r * r;
-
-    document.getElementById('correlationResults').innerHTML = `
-        <p>Coeficiente de Correlación (r): ${r.toFixed(4)}</p>
-        <p>Coeficiente de Determinación (r²): ${r2.toFixed(4)}</p>
-    `;
-} */
-
 function generarDiagramaDispersion() {
     const tabla = document.querySelector('#tablaContainer table');
     if (!tabla) return;
@@ -506,7 +403,6 @@ function calcularCorrelacion(dataX, dataY) {
     calcularLineaTendencia(slope, intercept, dataX);
 }
 
-
 function calcularLineaTendencia(slope, intercept, dataX) {
     // Calcular la línea de tendencia
     const regressionLine = dataX.map(x => ({ x, y: slope * x + intercept }));
@@ -528,7 +424,6 @@ function calcularLineaTendencia(slope, intercept, dataX) {
     window.scatterPlot.update();
 }
 
-
 function borrarDiagramaDispersion() {
     const scatterPlotCanvas = document.getElementById('scatterPlotCanvas');
     const scatterPlotCtx = scatterPlotCanvas.getContext('2d');
@@ -539,7 +434,7 @@ function borrarDiagramaDispersion() {
     document.getElementById('correlationResults').innerHTML = '';
 }
 
-
+window.onload = conectarEventos;
 
 
 

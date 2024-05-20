@@ -106,12 +106,12 @@ table td {
 
 /* Resto del CSS sigue igual */
 
-#controlChartContainer {
+.controlChartContainer {
     margin-top: 20px;
     text-align: center;
 }
 
-#controlChartCanvas {
+.controlChartCanvas {
     max-width: 600px;
     width: 80%;
     height: auto;
