@@ -10,10 +10,15 @@ function generarTabla() {
     }
     tabla += '</tr>';
 
+    // Etiquetas de tipo de datos
+    var tiposDatos = ['Altura', 'Distancia', 'Batería', 'Peso'];
+
     for (var i = 0; i < filas; i++) {
         tabla += '<tr>';
         for (var j = 0; j < columnas; j++) {
-            tabla += `<td contenteditable="true"></td>`; // Celdas de datos vacías y editables
+            // Elegir un tipo de dato aleatorio de la lista de tipos de datos
+            var tipoDato = tiposDatos[Math.floor(Math.random() * tiposDatos.length)];
+            tabla += `<td contenteditable="true" data-tipo="${tipoDato}"></td>`; // Asignar el tipo de dato a la celda
         }
         tabla += '</tr>';
     }
@@ -35,24 +40,55 @@ function generarDatos() {
     var tabla = document.getElementById('tablaContainer').getElementsByTagName('table')[0];
     var filas = tabla.rows.length;
 
+    // Obtener tipos de datos de la primera fila si están disponibles
+    var tiposDatos = [];
+    if (filas > 0) {
+        var primeraFila = tabla.rows[0];
+        var columnas = primeraFila.cells.length;
+        for (var j = 0; j < columnas; j++) {
+            var tipoDato = primeraFila.cells[j].textContent.trim();
+            tiposDatos.push(tipoDato);
+        }
+    }
+
     for (var i = 1; i < filas; i++) { // Comienza desde la fila 1
         var row = tabla.rows[i];
         var columnas = row.cells.length;
 
         for (var j = 0; j < columnas; j++) { // Comienza desde la columna 0
-            // Generar un valor aleatorio dentro del rango ±0.5 alrededor de un valor central
-            var valorCentral = 125; // Valor central para el ejemplo
-            var variabilidad = 0.5; // Variabilidad permitida
-            var valor = valorCentral + (Math.random() * 2 - 1) * variabilidad;
-
-            // Redondear el valor a un decimal
-            valor = Math.round(valor * 10) / 10;
+            // Generar un valor aleatorio según el tipo de dato de la celda
+            var valor;
+            if (tiposDatos.length > 0 && tiposDatos[j]) {
+                var tipoDato = tiposDatos[j];
+                switch (tipoDato) {
+                    case 'Altura':
+                        valor = Math.floor(Math.random() * (300 - 290 + 1)) + 290;
+                        break;
+                    case 'Distancia':
+                        valor = Math.floor(Math.random() * (2000 - 1990 + 1)) + 1990;
+                        break;
+                    case 'Batería':
+                        valor = Math.floor(Math.random() * (120 - 110 + 1)) + 110;
+                        break;
+                    case 'Peso':
+                        valor = Math.floor(Math.random() * (2000 - 1990 + 1)) + 1990;
+                        break;
+                    default:
+                        valor = Math.round((Math.random() * 100) * 10) / 10;
+                }
+            } else {
+                valor = Math.round((Math.random() * 100) * 10) / 10;
+            }
 
             // Asignar el valor generado a la celda
             row.cells[j].textContent = valor;
         }
     }
 }
+
+
+
+
 
 
 function borrarTabla() {
