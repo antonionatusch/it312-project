@@ -273,11 +273,66 @@ function generateControlCharts() {
             }
         });
 
-        // Mostrar botón de borrar gráficas de control
-        var borrarControlChartsButton = document.getElementById('borrarControlChartsButton');
-        borrarControlChartsButton.style.display = 'block';
+        // Gráfico de Rangos Móviles
+        var ranges = [];
+        for (var i = 1; i < data.length; i++) {
+            ranges.push(Math.abs(data[i] - data[i - 1]));
+        }
+
+        var meanRange = ranges.reduce((sum, value) => sum + value, 0) / ranges.length;
+        var d2 = 1.128;
+
+        var UCLR = meanRange + 3 * (meanRange / d2);
+        var LCLR = Math.max(0, meanRange - 3 * (meanRange / d2));
+
+        var canvasRangos = document.createElement('canvas');
+        canvasRangos.className = 'controlChartCanvas';
+        controlChartContainer.appendChild(canvasRangos);
+
+        var ctxRangos = canvasRangos.getContext('2d');
+
+        new Chart(ctxRangos, {
+            type: 'line',
+            data: {
+                labels: Array.from({ length: ranges.length }, (_, i) => i + 1),
+                datasets: [{
+                    label: `Rangos Móviles - ${nombre}`,
+                    data: ranges,
+                    borderColor: 'blue',
+                    fill: false
+                }, {
+                    label: 'Límite Superior de Control (UCL)',
+                    data: Array(ranges.length).fill(UCLR),
+                    borderColor: 'red',
+                    borderDash: [5, 5],
+                    fill: false
+                }, {
+                    label: 'Límite Inferior de Control (LCL)',
+                    data: Array(ranges.length).fill(LCLR),
+                    borderColor: 'red',
+                    borderDash: [5, 5],
+                    fill: false
+                }, {
+                    label: 'Media',
+                    data: Array(ranges.length).fill(meanRange),
+                    borderColor: 'green',
+                    borderDash: [5, 5],
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: `Rangos Móviles - ${nombre}`
+                }
+            }
+        });
     });
+
+    document.getElementById('borrarControlChartsButton').style.display = 'inline-block';
 }
+
 
 
 
