@@ -1,3 +1,4 @@
+
 // Configurar el mapa interactivo con Leaflet
 const mapa = L.map('mapa').setView([0, 0], 13);
 
@@ -215,15 +216,8 @@ function calcularDistanciaEntreMarcadores(origen, destino) {
     return 0;
 }
 
-// Función para terminar la colocación de marcadores
 function terminarColocacionMarcadores() {
-    // Deshabilitar colocación de marcadores
-    conectandoMarcadores = false;
-
-    // Habilitar botón de inicio
-    document.getElementById('iniciar').disabled = false;
-    // Deshabilitar botón de terminar
-    document.getElementById('terminar').disabled = true;
+    // Resto del código existente...
 
     // Asignar nombres a los marcadores y recolectarlos
     const marcadoresConNombres = [];
@@ -261,7 +255,95 @@ function terminarColocacionMarcadores() {
     if (marcadoresConNombres.length > 0) {
         const primeraUbicacion = marcadoresConNombres[0].marcador.getLatLng();
         obtenerDatosMeteorologicos(primeraUbicacion.lat, primeraUbicacion.lng);
+
+        // Calcular el camino más corto y crear la línea roja
+        const caminoMasCorto = dijkstra(marcadoresConectados, marcadoresConNombres[0].nombre, marcadoresConNombres[marcadoresConNombres.length - 1].nombre);
+        console.log("Camino más corto:", caminoMasCorto);
+        crearLineaRoja(caminoMasCorto);
     } else {
         console.error("No se encontraron marcadores para obtener datos meteorológicos.");
     }
 }
+
+
+// Función para calcular el camino más corto usando el algoritmo de Dijkstra
+function dijkstra(marcadoresConectados, inicio, fin) {
+    const distancias = {};
+    const previos = {};
+    const visitados = new Set();
+    const pq = new PriorityQueue();
+
+    marcadoresConectados.forEach(conexion => {
+        distancias[conexion.origen] = Infinity;
+        distancias[conexion.destino] = Infinity;
+        previos[conexion.origen] = null;
+        previos[conexion.destino] = null;
+    });
+
+    distancias[inicio] = 0;
+    pq.enqueue(inicio, 0);
+
+    while (!pq.isEmpty()) {
+        const menor = pq.dequeue().element;
+        visitados.add(menor);
+
+        const conexiones = marcadoresConectados.filter(con => con.origen === menor || con.destino === menor);
+        conexiones.forEach(conexion => {
+            const vecino = conexion.origen === menor ? conexion.destino : conexion.origen;
+            if (!visitados.has(vecino)) {
+                const nuevaDistancia = distancias[menor] + calcularDistanciaEntreMarcadores(menor, vecino);
+                if (nuevaDistancia < distancias[vecino]) {
+                    distancias[vecino] = nuevaDistancia;
+                    previos[vecino] = menor;
+                    pq.enqueue(vecino, nuevaDistancia);
+                }
+            }
+        });
+    }
+
+    const camino = [];
+    let actual = fin;
+    while (actual) {
+        camino.unshift(actual);
+        actual = previos[actual];
+    }
+    return camino;
+}
+
+// Clase de cola de prioridad
+class PriorityQueue {
+    constructor() {
+        this.items = [];
+    }
+    enqueue(element, priority) {
+        const qElement = { element, priority };
+        let added = false;
+        for (let i = 0; i < this.items.length; i++) {
+            if (this.items[i].priority > qElement.priority) {
+                this.items.splice(i, 1, qElement);
+                added = true;
+                break;
+            }
+        }
+        if (!added) {
+            this.items.push(qElement);
+        }
+    }
+    dequeue() {
+        return this.items.shift();
+    }
+    isEmpty() {
+        return this.items.length === 0;
+    }
+}
+
+// Función para crear una línea roja sólida en el camino más corto
+function crearLineaRoja(camino) {
+    const latLngs = camino.map(punto => {
+        const marcador = marcadores.find(marcador => marcador.getPopup().getContent() === punto);
+        return marcador.getLatLng();
+    });
+
+    const polylineRoja = L.polyline(latLngs, { color: 'red' }).addTo(mapa);
+}
+
