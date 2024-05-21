@@ -19,10 +19,6 @@
         <div class="button-group">
             <button onclick="generarTabla()">Generar Tabla</button>
             <button onclick="generarDatos()">Generar Datos</button>
-            <button onclick="generateHistograms()">Generar Histogramas</button>
-            <button onclick="generateControlCharts()">Generar Gráficas de Control</button>
-            <button onclick="borrarControlCharts()" id="borrarControlChartsButton" style="display: none;">Borrar Gráficas</button>
-            <button onclick="generarDiagramaDispersion()" id="generarDiagramaButton" style="display: none;">Generar Diagrama de Dispersión</button>
         </div>
     </div>
     <div class="input-group">
@@ -40,6 +36,9 @@
     <div id="controlChartContainer"></div>
     <div id="rangeChartContainer"></div>
 </div>
+<button onclick="borrarHistogramas()" id="borrarHistogramasButton" style="display: none;">Borrar Histogramas</button>
+<button onclick="borrarControlCharts()" id="borrarControlChartsButton" style="display: none;">Borrar Gráficas de Control</button>
+
 
 <div id="scatterPlotContainer" class="scatter-container">
     <canvas id="scatterPlotCanvas" width="400" height="400"></canvas>
@@ -48,8 +47,7 @@
         <button onclick="borrarDiagramaDispersion()" id="borrarDiagramaButton">Borrar Diagrama de Dispersión</button>
     </div>
 </div>
-
-<div id="columnSelectorContainer" class="input-group">
+<div id="columnSelectorContainer" class="input-group" style="display: none;">
     <label for="selectX">Variable Independiente (X):</label>
     <select id="selectX"></select>
     <label for="selectY">Variable Dependiente (Y):</label>
@@ -57,5 +55,11 @@
 </div>
 
 <script src="tablas.js"></script>
+
+<script>
+    // Ocultar el botón "Borrar Diagrama de Dispersión" al cargar la página
+    document.getElementById('borrarDiagramaButton').style.display = 'none';
+</script>
+
 </body>
 </html>

@@ -107,3 +107,43 @@ table td {
     height: 400px;
     margin: 0 auto;
 }
+
+#borrarControlChartsButton {
+    display: block;
+    margin-top: 10px; /* Puedes ajustar este valor según sea necesario */
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white; /* Color del texto */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 780px;
+}
+
+#borrarControlChartsButton:hover {
+    background-color: #007bff;
+}
+
+#borrarControlChartsButton:active {
+    background-color: #0056b3;
+}
+
+#borrarHistogramasButton {
+    display: none; /* Por defecto oculto */
+    margin-top: 10px;
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 780px; /* Mismo margen izquierdo que el botón "Borrar Gráficas de Control" */
+}
+
+#borrarHistogramasButton:hover {
+    background-color: #007bff;
+}
+
+#borrarHistogramasButton:active {
+    background-color: #0056b3;
+}

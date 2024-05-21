@@ -20,7 +20,10 @@ function generarTabla() {
     }
     tabla += '</table>';
     tabla += '<div class="button-group">';
-    tabla += '<button onclick="generateControlCharts()">Generar Gráficas de Control</button>';
+    tabla += '<button onclick="generateControlCharts()" style="margin-right: 10px;">Generar Gráficas de Control</button>';
+    tabla += '<button onclick="generateHistograms()" style="margin-right: 10px;">Generar Histograma</button>';
+    tabla += '<button onclick="generarDiagramaDispersion()" id="generarDiagramaButton" style="display: none; margin-right: 10px;">Generar Diagrama de Dispersión</button>';
+
     tabla += '</div>';
 
     document.getElementById('tablaContainer').innerHTML = tabla;
@@ -32,6 +35,7 @@ function generarTabla() {
     populateColumnSelects();
     conectarEventos();
 }
+
 
 function generarDatos() {
     var tabla = document.getElementById('tablaContainer').getElementsByTagName('table')[0];
@@ -179,8 +183,19 @@ function generateHistograms() {
             }
         });
     });
+
+    var borrarHistogramasButton = document.getElementById('borrarHistogramasButton');
+    borrarHistogramasButton.style.display = 'block';
 }
 
+function borrarHistogramas() {
+    var histogramContainer = document.getElementById('histogramContainer');
+    histogramContainer.innerHTML = '';
+
+    // Ocultar botón de borrar histogramas
+    var borrarHistogramasButton = document.getElementById('borrarHistogramasButton');
+    borrarHistogramasButton.style.display = 'none';
+}
 
 function generateControlCharts() {
     var table = document.getElementById('tablaContainer').getElementsByTagName('table')[0];
@@ -318,6 +333,9 @@ function generateControlCharts() {
     document.getElementById('borrarControlChartsButton').style.display = 'inline-block';
 }
 
+
+
+
 function borrarControlCharts() {
     document.getElementById('controlChartContainer').innerHTML = '';
     document.getElementById('borrarControlChartsButton').style.display = 'none';
@@ -422,7 +440,8 @@ function generarDiagramaDispersion() {
         <p>Coeficiente de Determinación (R²): ${determination.toFixed(2)}</p>
     `;
 
-    document.getElementById('borrarDiagramaButton').style.display = 'inline-block';
+    document.getElementById('columnSelectorContainer').style.display = 'block';
+    document.getElementById('borrarDiagramaButton').style.display = 'inline-block'
 }
 
 function borrarDiagramaDispersion() {
@@ -433,6 +452,8 @@ function borrarDiagramaDispersion() {
     }
     document.getElementById('correlationResults').textContent = '';
     document.getElementById('borrarDiagramaButton').style.display = 'none';
+    // Ocultar el div columnSelectorContainer
+    document.getElementById('columnSelectorContainer').style.display = 'none';
 }
 
 function calculateCorrelation(x, y) {
