@@ -183,6 +183,18 @@ function generateHistograms() {
             }
         });
     });
+
+    var borrarHistogramasButton = document.getElementById('borrarHistogramasButton');
+    borrarHistogramasButton.style.display = 'block';
+}
+
+function borrarHistogramas() {
+    var histogramContainer = document.getElementById('histogramContainer');
+    histogramContainer.innerHTML = '';
+
+    // Ocultar botón de borrar histogramas
+    var borrarHistogramasButton = document.getElementById('borrarHistogramasButton');
+    borrarHistogramasButton.style.display = 'none';
 }
 
 function generateControlCharts() {
