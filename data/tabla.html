@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generador de Tablas</title>
     <link rel="stylesheet" href="tablaestilos.css">
-    <!-- Include Chart.js library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -20,23 +19,41 @@
         <div class="button-group">
             <button onclick="generarTabla()">Generar Tabla</button>
             <button onclick="generarDatos()">Generar Datos</button>
-            <button onclick="borrarControlCharts()" id="borrarControlChartsButton" style="display: none;">Borrar Gráficas</button> <!-- Botón para borrar gráficas de control oculto por defecto -->
+            <button onclick="generateHistograms()">Generar Histogramas</button>
+            <button onclick="generateControlCharts()">Generar Gráficas de Control</button>
+            <button onclick="borrarControlCharts()" id="borrarControlChartsButton" style="display: none;">Borrar Gráficas</button>
+            <button onclick="generarDiagramaDispersion()" id="generarDiagramaButton" style="display: none;">Generar Diagrama de Dispersión</button>
         </div>
     </div>
     <div class="input-group">
         <label for="filas">Drones:</label>
         <input type="number" id="filas" min="1" value="0">
         <label for="columnas">Variables:</label>
-        <input type="number" id="columnas" min="1"  value="0">
+        <input type="number" id="columnas" min="1" value="0">
     </div>
 </div>
 
 <div id="tablaContainer"></div>
 
-<div class="chart-container">
-    <div id="controlChartContainer">
-        <!-- Canvas para las gráficas de control -->
+<div class="chart-container" id="chartContainer">
+    <div id="histogramContainer"></div>
+    <div id="controlChartContainer"></div>
+    <div id="rangeChartContainer"></div>
+</div>
+
+<div id="scatterPlotContainer" class="scatter-container">
+    <canvas id="scatterPlotCanvas" width="400" height="400"></canvas>
+    <div id="correlationResults"></div>
+    <div class="button-group">
+        <button onclick="borrarDiagramaDispersion()" id="borrarDiagramaButton">Borrar Diagrama de Dispersión</button>
     </div>
+</div>
+
+<div id="columnSelectorContainer" class="input-group">
+    <label for="selectX">Variable Independiente (X):</label>
+    <select id="selectX"></select>
+    <label for="selectY">Variable Dependiente (Y):</label>
+    <select id="selectY"></select>
 </div>
 
 <script src="tablas.js"></script>
