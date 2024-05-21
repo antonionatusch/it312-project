@@ -20,7 +20,10 @@ function generarTabla() {
     }
     tabla += '</table>';
     tabla += '<div class="button-group">';
-    tabla += '<button onclick="generateControlCharts()">Generar Gráficas de Control</button>';
+    tabla += '<button onclick="generateControlCharts()" style="margin-right: 10px;">Generar Gráficas de Control</button>';
+    tabla += '<button onclick="generateHistograms()" style="margin-right: 10px;">Generar Histograma</button>';
+    tabla += '<button onclick="generarDiagramaDispersion()" id="generarDiagramaButton" style="display: none; margin-right: 10px;">Generar Diagrama de Dispersión</button>';
+
     tabla += '</div>';
 
     document.getElementById('tablaContainer').innerHTML = tabla;
@@ -32,6 +35,7 @@ function generarTabla() {
     populateColumnSelects();
     conectarEventos();
 }
+
 
 function generarDatos() {
     var tabla = document.getElementById('tablaContainer').getElementsByTagName('table')[0];
@@ -181,7 +185,6 @@ function generateHistograms() {
     });
 }
 
-
 function generateControlCharts() {
     var table = document.getElementById('tablaContainer').getElementsByTagName('table')[0];
     var rows = table.rows.length;
@@ -258,65 +261,13 @@ function generateControlCharts() {
             }
         });
 
-        // Gráfico de Rangos Móviles
-        var ranges = [];
-        for (var i = 1; i < data.length; i++) {
-            ranges.push(Math.abs(data[i] - data[i - 1]));
-        }
-
-        var meanRange = ranges.reduce((sum, value) => sum + value, 0) / ranges.length;
-        var d2 = 1.128;
-
-        var UCLR = meanRange + 3 * (meanRange / d2);
-        var LCLR = Math.max(0, meanRange - 3 * (meanRange / d2));
-
-        var canvasRangos = document.createElement('canvas');
-        canvasRangos.className = 'controlChartCanvas';
-        controlChartContainer.appendChild(canvasRangos);
-
-        var ctxRangos = canvasRangos.getContext('2d');
-
-        new Chart(ctxRangos, {
-            type: 'line',
-            data: {
-                labels: Array.from({ length: ranges.length }, (_, i) => i + 1),
-                datasets: [{
-                    label: `Rangos Móviles - ${nombre}`,
-                    data: ranges,
-                    borderColor: 'blue',
-                    fill: false
-                }, {
-                    label: 'Límite Superior de Control (UCL)',
-                    data: Array(ranges.length).fill(UCLR),
-                    borderColor: 'red',
-                    borderDash: [5, 5],
-                    fill: false
-                }, {
-                    label: 'Límite Inferior de Control (LCL)',
-                    data: Array(ranges.length).fill(LCLR),
-                    borderColor: 'red',
-                    borderDash: [5, 5],
-                    fill: false
-                }, {
-                    label: 'Media',
-                    data: Array(ranges.length).fill(meanRange),
-                    borderColor: 'green',
-                    borderDash: [5, 5],
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-                title: {
-                    display: true,
-                    text: `Rangos Móviles - ${nombre}`
-                }
-            }
-        });
+        // Mostrar botón de borrar gráficas de control
+        var borrarControlChartsButton = document.getElementById('borrarControlChartsButton');
+        borrarControlChartsButton.style.display = 'block';
     });
-
-    document.getElementById('borrarControlChartsButton').style.display = 'inline-block';
 }
+
+
 
 function borrarControlCharts() {
     document.getElementById('controlChartContainer').innerHTML = '';
@@ -422,7 +373,8 @@ function generarDiagramaDispersion() {
         <p>Coeficiente de Determinación (R²): ${determination.toFixed(2)}</p>
     `;
 
-    document.getElementById('borrarDiagramaButton').style.display = 'inline-block';
+    document.getElementById('columnSelectorContainer').style.display = 'block';
+    document.getElementById('borrarDiagramaButton').style.display = 'inline-block'
 }
 
 function borrarDiagramaDispersion() {
@@ -433,6 +385,8 @@ function borrarDiagramaDispersion() {
     }
     document.getElementById('correlationResults').textContent = '';
     document.getElementById('borrarDiagramaButton').style.display = 'none';
+    // Ocultar el div columnSelectorContainer
+    document.getElementById('columnSelectorContainer').style.display = 'none';
 }
 
 function calculateCorrelation(x, y) {
