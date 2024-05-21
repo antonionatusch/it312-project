@@ -94,7 +94,7 @@ table td {
     text-align: center;
 }
 
-.controlChartCanvas, .rangeChartCanvas {
+.controlChartCanvas, .rangeChartCanvas, .histogramCanvas {
     max-width: 400px;
     width: 80%;
     height: 300px;

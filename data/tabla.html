@@ -19,6 +19,7 @@
         <div class="button-group">
             <button onclick="generarTabla()">Generar Tabla</button>
             <button onclick="generarDatos()">Generar Datos</button>
+            <button onclick="generateHistograms()">Generar Histogramas</button>
             <button onclick="generateControlCharts()">Generar Gráficas de Control</button>
             <button onclick="borrarControlCharts()" id="borrarControlChartsButton" style="display: none;">Borrar Gráficas</button>
             <button onclick="generarDiagramaDispersion()" id="generarDiagramaButton" style="display: none;">Generar Diagrama de Dispersión</button>
@@ -35,6 +36,7 @@
 <div id="tablaContainer"></div>
 
 <div class="chart-container" id="chartContainer">
+    <div id="histogramContainer"></div>
     <div id="controlChartContainer"></div>
     <div id="rangeChartContainer"></div>
 </div>

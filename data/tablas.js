@@ -85,6 +85,103 @@ function generarDatos() {
     }
 }
 
+function generateHistograms() {
+    var table = document.getElementById('tablaContainer').getElementsByTagName('table')[0];
+    var rows = table.rows.length;
+    var cols = table.rows[0].cells.length;
+
+    var datasets = [];
+    for (var j = 0; j < cols; j++) {
+        var data = [];
+        for (var i = 1; i < rows; i++) {
+            var value = parseFloat(table.rows[i].cells[j].textContent);
+            if (!isNaN(value)) {
+                data.push(value);
+            }
+        }
+        datasets.push(data);
+    }
+
+    var histogramContainer = document.getElementById('histogramContainer');
+    histogramContainer.innerHTML = '';
+
+    var nombres = Array.from(table.rows[0].cells).map(cell => cell.textContent.trim());
+
+    datasets.forEach((data, index) => {
+        var nombre = nombres[index] || `Variable ${index + 1}`;
+
+        var canvas = document.createElement('canvas');
+        canvas.className = 'histogramCanvas';
+        histogramContainer.appendChild(canvas);
+
+        var ctx = canvas.getContext('2d');
+
+        // Calcular el número de intervalos y la amplitud del intervalo
+        var numDatos = data.length;
+        var min = Math.min(...data);
+        var max = Math.max(...data);
+        var numIntervalos = Math.round(1 + 3.322 * Math.log10(numDatos));
+        var amplitudIntervalo = (max - min) / numIntervalos;
+        console.log(amplitudIntervalo);
+        // Redondear la amplitud del intervalo
+        amplitudIntervalo = Math.ceil(amplitudIntervalo);
+
+        // Crear los intervalos y calcular las frecuencias
+        var intervalos = [];
+        var frecuencias = [];
+        for (var i = 0; i < numIntervalos; i++) {
+            intervalos.push(min + i * amplitudIntervalo);
+            frecuencias.push(0);
+        }
+        intervalos.push(max);
+
+        data.forEach(valor => {
+            for (var i = 0; i < intervalos.length - 1; i++) {
+                if (valor >= intervalos[i] && valor < intervalos[i + 1]) {
+                    frecuencias[i]++;
+                    break;
+                }
+            }
+        });
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: intervalos.slice(0, -1),
+                datasets: [{
+                    label: `Frecuencia - ${nombre}`,
+                    data: frecuencias,
+                    backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                    borderColor: 'blue',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: `Histograma - ${nombre}`
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Intervalos'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Frecuencia'
+                        }
+                    }
+                }
+            }
+        });
+    });
+}
+
+
 function generateControlCharts() {
     var table = document.getElementById('tablaContainer').getElementsByTagName('table')[0];
     var rows = table.rows.length;
@@ -369,4 +466,3 @@ function populateColumnSelects() {
         selectY.add(optionClone);
     }
 }
-
