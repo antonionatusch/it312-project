@@ -13,9 +13,10 @@ Repositorio que contiene los avances y distintas utilidades necesarias para el d
 Se debe especificar en el pull request el tipo de avance que se hizo.
 
 Objetivos:
-* Autogeneración de datos para el histograma, utilizando numeros aleatorios dentro de un rango realista **según la variable**
-* Creación de gráficos de control de observaciones individuales
-* Diagrama de dispersión y análisis de correlación entre 2 variables cualesquiera
+* Autogeneración de datos para el histograma, utilizando numeros aleatorios dentro de un rango realista **según la variable** ✅
+* Creación de gráficos de control de observaciones individuales ✅
+* Diagrama de dispersión y análisis de correlación entre 2 variables cualesquiera ✅
+* Estilizarlo para mejor experiencia de usuario
 
 
 ## gitignore

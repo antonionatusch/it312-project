@@ -3,44 +3,40 @@ function generarTabla() {
     var columnas = parseInt(document.getElementById('columnas').value);
 
     var tabla = '<table>';
-
-
+    tabla += '<tr>';
     for (var j = 0; j < columnas; j++) {
-        tabla += `<th contenteditable="true"></th>`; // Encabezados de columna editables vacíos
+        tabla += `<th contenteditable="true"></th>`;
     }
     tabla += '</tr>';
 
-    // Etiquetas de tipo de datos
     var tiposDatos = ['Altura', 'Distancia', 'Batería', 'Peso'];
-
     for (var i = 0; i < filas; i++) {
         tabla += '<tr>';
         for (var j = 0; j < columnas; j++) {
-            // Elegir un tipo de dato aleatorio de la lista de tipos de datos
             var tipoDato = tiposDatos[Math.floor(Math.random() * tiposDatos.length)];
-            tabla += `<td contenteditable="true" data-tipo="${tipoDato}"></td>`; // Asignar el tipo de dato a la celda
+            tabla += `<td contenteditable="true" data-tipo="${tipoDato}"></td>`;
         }
         tabla += '</tr>';
     }
-
     tabla += '</table>';
-
-    // Agregar botón para eliminar tabla y generar histograma
     tabla += '<div class="button-group">';
-    tabla += '<button onclick="borrarTabla()">Borrar Tabla</button>';
-    tabla += '<span style="margin-left: 10px;"></span>'; // Espacio entre los botones
     tabla += '<button onclick="generateControlCharts()">Generar Gráficas de Control</button>';
-    tabla += '<button onclick="borrarControlCharts()" id="borrarControlChartsButton" style="display: none;">Borrar Gráficas</button>'; // Botón para borrar gráficas de control oculto por defecto
     tabla += '</div>';
 
     document.getElementById('tablaContainer').innerHTML = tabla;
+
+    // Mostrar botón de generar diagrama de dispersión
+    document.getElementById('generarDiagramaButton').style.display = 'inline-block';
+
+    // Poblar selects para el diagrama de dispersión
+    populateColumnSelects();
+    conectarEventos();
 }
 
 function generarDatos() {
     var tabla = document.getElementById('tablaContainer').getElementsByTagName('table')[0];
     var filas = tabla.rows.length;
 
-    // Obtener tipos de datos de la primera fila si están disponibles
     var tiposDatos = [];
     if (filas > 0) {
         var primeraFila = tabla.rows[0];
@@ -51,12 +47,10 @@ function generarDatos() {
         }
     }
 
-    for (var i = 1; i < filas; i++) { // Comienza desde la fila 1
+    for (var i = 1; i < filas; i++) {
         var row = tabla.rows[i];
         var columnas = row.cells.length;
-
-        for (var j = 0; j < columnas; j++) { // Comienza desde la columna 0
-            // Generar un valor aleatorio según el tipo de dato de la celda
+        for (var j = 0; j < columnas; j++) {
             var valor;
             if (tiposDatos.length > 0 && tiposDatos[j]) {
                 var tipoDato = tiposDatos[j];
@@ -68,285 +62,407 @@ function generarDatos() {
                         valor = Math.floor(Math.random() * (2000 - 1990 + 1)) + 1990;
                         break;
                     case 'Batería':
-                        valor = Math.floor(Math.random() * (120 - 110 + 1)) + 110;
+                        valor = Math.floor(Math.random() * (60 - 55 + 1)) + 55;
                         break;
                     case 'Peso':
-                        valor = Math.floor(Math.random() * (2000 - 1990 + 1)) + 1990;
+                        valor = Math.floor(Math.random() * (1500 - 1490 + 1)) + 1490;
                         break;
                     default:
-                        valor = Math.round((Math.random() * 100) * 10) / 10;
+                        valor = Math.floor(Math.random() * 100);
+                        break;
                 }
             } else {
-                valor = Math.round((Math.random() * 100) * 10) / 10;
+                valor = Math.floor(Math.random() * 100);
             }
-
-            // Asignar el valor generado a la celda
             row.cells[j].textContent = valor;
         }
     }
+
+    // Regenerar el diagrama de dispersión si ya ha sido generado
+    var scatterPlotCanvas = document.getElementById('scatterPlotCanvas');
+    if (scatterPlotCanvas.scatterChart) {
+        generarDiagramaDispersion();
+    }
 }
 
+function generateHistograms() {
+    var table = document.getElementById('tablaContainer').getElementsByTagName('table')[0];
+    var rows = table.rows.length;
+    var cols = table.rows[0].cells.length;
 
+    var datasets = [];
+    for (var j = 0; j < cols; j++) {
+        var data = [];
+        for (var i = 1; i < rows; i++) {
+            var value = parseFloat(table.rows[i].cells[j].textContent);
+            if (!isNaN(value)) {
+                data.push(value);
+            }
+        }
+        datasets.push(data);
+    }
 
-function borrarTabla() {
-    document.getElementById('tablaContainer').innerHTML = '';
+    var histogramContainer = document.getElementById('histogramContainer');
+    histogramContainer.innerHTML = '';
 
-    // Si hay gráficas de control, también las borramos
-    borrarControlCharts();
+    var nombres = Array.from(table.rows[0].cells).map(cell => cell.textContent.trim());
+
+    datasets.forEach((data, index) => {
+        var nombre = nombres[index] || `Variable ${index + 1}`;
+
+        var canvas = document.createElement('canvas');
+        canvas.className = 'histogramCanvas';
+        histogramContainer.appendChild(canvas);
+
+        var ctx = canvas.getContext('2d');
+
+        // Calcular el número de intervalos y la amplitud del intervalo
+        var numDatos = data.length;
+        var min = Math.min(...data);
+        var max = Math.max(...data);
+        var numIntervalos = Math.round(1 + 3.322 * Math.log10(numDatos));
+        var amplitudIntervalo = (max - min) / numIntervalos;
+        console.log(amplitudIntervalo);
+        // Redondear la amplitud del intervalo
+        amplitudIntervalo = Math.ceil(amplitudIntervalo);
+
+        // Crear los intervalos y calcular las frecuencias
+        var intervalos = [];
+        var frecuencias = [];
+        for (var i = 0; i < numIntervalos; i++) {
+            intervalos.push(min + i * amplitudIntervalo);
+            frecuencias.push(0);
+        }
+        intervalos.push(max);
+
+        data.forEach(valor => {
+            for (var i = 0; i < intervalos.length - 1; i++) {
+                if (valor >= intervalos[i] && valor < intervalos[i + 1]) {
+                    frecuencias[i]++;
+                    break;
+                }
+            }
+        });
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: intervalos.slice(0, -1),
+                datasets: [{
+                    label: `Frecuencia - ${nombre}`,
+                    data: frecuencias,
+                    backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                    borderColor: 'blue',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: `Histograma - ${nombre}`
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Intervalos'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Frecuencia'
+                        }
+                    }
+                }
+            }
+        });
+    });
 }
+
 
 function generateControlCharts() {
-    // Borrar gráficas de control existentes
-    borrarControlCharts();
+    var table = document.getElementById('tablaContainer').getElementsByTagName('table')[0];
+    var rows = table.rows.length;
+    var cols = table.rows[0].cells.length;
 
-    // Obtener la tabla
-    const tabla = document.querySelector('#tablaContainer table');
-    if (!tabla) return;
+    var datasets = [];
+    for (var j = 0; j < cols; j++) {
+        var data = [];
+        for (var i = 1; i < rows; i++) {
+            var value = parseFloat(table.rows[i].cells[j].textContent);
+            if (!isNaN(value)) {
+                data.push(value);
+            }
+        }
+        datasets.push(data);
+    }
 
-    // Obtener el número de columnas
-    const columnas = tabla.rows[0].cells.length;
+    var controlChartContainer = document.getElementById('controlChartContainer');
+    controlChartContainer.innerHTML = '';
 
-    // Crear contenedores para las gráficas de control
-    const controlChartContainer = document.getElementById('controlChartContainer');
-    for (let i = 0; i < columnas; i++) {
-        // Canvas para la gráfica de observaciones individuales
-        const canvasObservaciones = document.createElement('canvas');
-        canvasObservaciones.id = 'controlChartCanvas_' + i;
-        controlChartContainer.appendChild(canvasObservaciones);
+    var nombres = Array.from(table.rows[0].cells).map(cell => cell.textContent.trim());
 
-        // Canvas para la gráfica de rangos móviles
-        const canvasRangos = document.createElement('canvas');
-        canvasRangos.id = 'rangeChartCanvas_' + i;
+    datasets.forEach((data, index) => {
+        var nombre = nombres[index] || `Variable ${index + 1}`;
+
+        var canvas = document.createElement('canvas');
+        canvas.className = 'controlChartCanvas';
+        controlChartContainer.appendChild(canvas);
+
+        var ctx = canvas.getContext('2d');
+
+        var mean = data.reduce((sum, value) => sum + value, 0) / data.length;
+        var variance = data.reduce((sum, value) => sum + (value - mean) ** 2, 0) / data.length;
+        var stdDev = Math.sqrt(variance);
+
+        var upperControlLimit = mean + 3 * stdDev;
+        var lowerControlLimit = mean - 3 * stdDev;
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({ length: data.length }, (_, i) => i + 1),
+                datasets: [{
+                    label: nombre,
+                    data: data,
+                    borderColor: 'blue',
+                    fill: false
+                }, {
+                    label: 'Límite Superior de Control (UCL)',
+                    data: Array(data.length).fill(upperControlLimit),
+                    borderColor: 'red',
+                    borderDash: [5, 5],
+                    fill: false
+                }, {
+                    label: 'Límite Inferior de Control (LCL)',
+                    data: Array(data.length).fill(lowerControlLimit),
+                    borderColor: 'red',
+                    borderDash: [5, 5],
+                    fill: false
+                }, {
+                    label: 'Media',
+                    data: Array(data.length).fill(mean),
+                    borderColor: 'green',
+                    borderDash: [5, 5],
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: `Gráfico de Control - ${nombre}`
+                }
+            }
+        });
+
+        // Gráfico de Rangos Móviles
+        var ranges = [];
+        for (var i = 1; i < data.length; i++) {
+            ranges.push(Math.abs(data[i] - data[i - 1]));
+        }
+
+        var meanRange = ranges.reduce((sum, value) => sum + value, 0) / ranges.length;
+        var d2 = 1.128;
+
+        var UCLR = meanRange + 3 * (meanRange / d2);
+        var LCLR = Math.max(0, meanRange - 3 * (meanRange / d2));
+
+        var canvasRangos = document.createElement('canvas');
+        canvasRangos.className = 'controlChartCanvas';
         controlChartContainer.appendChild(canvasRangos);
-    }
 
-    // Generar gráficas de control para cada columna
-    for (let i = 0; i < columnas; i++) {
-        generateControlChart(i);
-        generateRangeChart(i); // Generar la gráfica de rangos móviles
-    }
+        var ctxRangos = canvasRangos.getContext('2d');
 
-    // Mostrar el botón para borrar las gráficas de control
+        new Chart(ctxRangos, {
+            type: 'line',
+            data: {
+                labels: Array.from({ length: ranges.length }, (_, i) => i + 1),
+                datasets: [{
+                    label: `Rangos Móviles - ${nombre}`,
+                    data: ranges,
+                    borderColor: 'blue',
+                    fill: false
+                }, {
+                    label: 'Límite Superior de Control (UCL)',
+                    data: Array(ranges.length).fill(UCLR),
+                    borderColor: 'red',
+                    borderDash: [5, 5],
+                    fill: false
+                }, {
+                    label: 'Límite Inferior de Control (LCL)',
+                    data: Array(ranges.length).fill(LCLR),
+                    borderColor: 'red',
+                    borderDash: [5, 5],
+                    fill: false
+                }, {
+                    label: 'Media',
+                    data: Array(ranges.length).fill(meanRange),
+                    borderColor: 'green',
+                    borderDash: [5, 5],
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: `Rangos Móviles - ${nombre}`
+                }
+            }
+        });
+    });
+
     document.getElementById('borrarControlChartsButton').style.display = 'inline-block';
 }
 
 function borrarControlCharts() {
-    // Borrar las gráficas de control
-    const controlChartContainer = document.getElementById('controlChartContainer');
-    controlChartContainer.innerHTML = '';
-
-    // Ocultar el botón para borrar las gráficas de control
+    document.getElementById('controlChartContainer').innerHTML = '';
     document.getElementById('borrarControlChartsButton').style.display = 'none';
 }
 
-function generateControlChart(columnIndex) {
-    // Obtener la tabla y los datos para la columna específica
-    const tabla = document.querySelector('#tablaContainer table');
+function linearRegression(x, y) {
+    var n = x.length;
+    var sumX = x.reduce((a, b) => a + b, 0);
+    var sumY = y.reduce((a, b) => a + b, 0);
+    var sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
+    var sumX2 = x.reduce((sum, xi) => sum + xi * xi, 0);
 
-    // Crear un array para almacenar los datos numéricos
-    const data = [];
-    for (let i = 1; i < tabla.rows.length; i++) {
-        const cellValue = parseFloat(tabla.rows[i].cells[columnIndex].textContent.trim());
+    var slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+    var intercept = (sumY - slope * sumX) / n;
 
-        // Verificar si el valor es un número válido antes de agregarlo al array
-        if (!isNaN(cellValue)) {
-            data.push(cellValue);
+    return { slope: slope, intercept: intercept };
+}
+
+function generarDiagramaDispersion() {
+    var table = document.getElementById('tablaContainer').getElementsByTagName('table')[0];
+    var rows = table.rows.length;
+
+    var selectX = document.getElementById('selectX');
+    var selectY = document.getElementById('selectY');
+    var xIndex = selectX.selectedIndex;
+    var yIndex = selectY.selectedIndex;
+
+    var dataX = [];
+    var dataY = [];
+
+    for (var i = 1; i < rows; i++) {
+        var valueX = parseFloat(table.rows[i].cells[xIndex].textContent);
+        var valueY = parseFloat(table.rows[i].cells[yIndex].textContent);
+        if (!isNaN(valueX) && !isNaN(valueY)) {
+            dataX.push(valueX);
+            dataY.push(valueY);
         }
     }
 
-    // Verificar si hay suficientes datos para calcular los límites de control
-    if (data.length === 0) {
-        console.error('No hay suficientes datos válidos para calcular los límites de control.');
-        return;
+    var scatterPlotCanvas = document.getElementById('scatterPlotCanvas');
+    var ctx = scatterPlotCanvas.getContext('2d');
+
+    if (scatterPlotCanvas.scatterChart) {
+        scatterPlotCanvas.scatterChart.destroy();
     }
 
-    // Calcular los rangos
-    const ranges = [];
-    for (let i = 1; i < data.length; i++) {
-        ranges.push(Math.abs(data[i] - data[i - 1])); // Tomar el valor absoluto de la diferencia
-    }
+    var scatterData = dataX.map((x, i) => ({ x: x, y: dataY[i] }));
+    var regression = linearRegression(dataX, dataY);
+    var trendlineData = dataX.map(x => ({ x: x, y: regression.slope * x + regression.intercept }));
 
-    // Calcular la media de los rangos
-    const meanRange = ranges.reduce((sum, value) => sum + value, 0) / ranges.length;
-    console.log(meanRange)
-    // Calcular el factor d2 (valor para n=2)
-    const d2 = 1.128;
+    var nombres = Array.from(table.rows[0].cells).map(cell => cell.textContent.trim());
 
-    // Calcular la media de los datos
-    const mean = data.reduce((sum, value) => sum + value, 0) / data.length;
-
-    // Calcular los límites de control para observaciones individuales
-    const UCLx = mean + 3 * (meanRange / d2);
-    const LCLx = mean - 3 * (meanRange / d2);
-
-    console.log(UCLx);
-    console.log(LCLx);
-
-    // Obtener o crear el canvas para la gráfica de control de observaciones individuales
-    let canvas = document.getElementById('controlChartCanvas_' + columnIndex);
-    if (!canvas) {
-        canvas = document.createElement('canvas');
-        canvas.id = 'controlChartCanvas_' + columnIndex;
-        document.getElementById('controlChartContainer').appendChild(canvas);
-    }
-
-    canvas.width = canvas.parentElement.clientWidth; // Ajustar el ancho del canvas al contenedor
-    canvas.height = 400; // Establecer una altura fija para el canvas
-
-    // Obtener el contexto del canvas
-    const ctx = canvas.getContext('2d');
-
-    // Crear la gráfica de control de observaciones individuales
-    new Chart(ctx, {
-        type: 'line',
+    scatterPlotCanvas.scatterChart = new Chart(ctx, {
+        type: 'scatter',
         data: {
-            labels: Array.from(Array(data.length).keys()),
             datasets: [{
-                label: 'Observaciones',
-                data: data,
+                label: 'Diagrama de Dispersión',
+                data: scatterData,
                 borderColor: 'blue',
-                fill: false
+                backgroundColor: 'rgba(0, 123, 255, 0.5)'
             }, {
-                label: 'UCLx',
-                data: new Array(data.length).fill(UCLx), // Llenar el arreglo con el valor de UCLx
+                label: 'Línea de Tendencia',
+                data: trendlineData,
+                type: 'line',
                 borderColor: 'red',
-                borderDash: [5, 5],
-                fill: false
-            }, {
-                label: 'LCLx',
-                data: new Array(data.length).fill(LCLx), // Llenar el arreglo con el valor de LCLx
-                borderColor: 'green',
-                borderDash: [5, 5],
-                fill: false
+                fill: false,
+                showLine: true,
+                tension: 0,
+                pointRadius: 0
             }]
         },
         options: {
             responsive: true,
+            title: {
+                display: true,
+                text: 'Diagrama de Dispersión con Línea de Tendencia'
+            },
             scales: {
                 x: {
+                    type: 'linear',
+                    position: 'bottom',
                     title: {
                         display: true,
-                        text: 'Muestra'
+                        text: nombres[xIndex] || `Variable ${xIndex + 1}`
                     }
                 },
                 y: {
                     title: {
                         display: true,
-                        text: 'Valor'
+                        text: nombres[yIndex] || `Variable ${yIndex + 1}`
                     }
                 }
             }
         }
     });
+
+    var correlation = calculateCorrelation(dataX, dataY);
+    var determination = Math.pow(correlation, 2);
+
+    document.getElementById('correlationResults').innerHTML = `
+        <p>Correlación: ${correlation.toFixed(2)}</p>
+        <p>Coeficiente de Determinación (R²): ${determination.toFixed(2)}</p>
+    `;
+
+    document.getElementById('borrarDiagramaButton').style.display = 'inline-block';
 }
 
-
-function generateRangeChart(columnIndex) {
-    // Obtener la tabla y los datos para la columna específica
-    const tabla = document.querySelector('#tablaContainer table');
-
-    // Crear un array para almacenar los datos numéricos
-    const data = [];
-    for (let i = 1; i < tabla.rows.length; i++) {
-        const cellValue = parseFloat(tabla.rows[i].cells[columnIndex].textContent.trim());
-
-        // Verificar si el valor es un número válido antes de agregarlo al array
-        if (!isNaN(cellValue)) {
-            data.push(cellValue);
-        }
+function borrarDiagramaDispersion() {
+    var scatterPlotCanvas = document.getElementById('scatterPlotCanvas');
+    scatterPlotCanvas.getContext('2d').clearRect(0, 0, scatterPlotCanvas.width, scatterPlotCanvas.height);
+    if (scatterPlotCanvas.scatterChart) {
+        scatterPlotCanvas.scatterChart.destroy();
     }
-
-    // Verificar si hay suficientes datos para calcular los límites de control
-    if (data.length === 0) {
-        console.error('No hay suficientes datos válidos para calcular los límites de control.');
-        return;
-    }
-
-    // Calcular los rangos
-    const ranges = [];
-    for (let i = 1; i < data.length; i++) {
-        ranges.push(Math.abs(data[i] - data[i - 1])); // Tomar el valor absoluto de la diferencia
-    }
-
-    // Calcular la media de los rangos
-    const meanRange = ranges.reduce((sum, value) => sum + value, 0) / ranges.length;
-    console.log(meanRange)
-    // Calcular el factor d2 (valor para n=2)
-    const d2 = 1.128;
-
-    // Calcular los límites de control para rangos móviles
-    const UCLR = meanRange + 3 * (meanRange / d2);
-    const LCLR = Math.max(0, meanRange - 3 * (meanRange / d2));
-
-    console.log(UCLR);
-    console.log(LCLR);
-
-    // Obtener o crear el canvas para la gráfica de rangos móviles
-    let canvas = document.getElementById('rangeChartCanvas_' + columnIndex);
-    if (!canvas) {
-        canvas = document.createElement('canvas');
-        canvas.id = 'rangeChartCanvas_' + columnIndex;
-        document.getElementById('controlChartContainer').appendChild(canvas);
-    }
-
-    canvas.width = canvas.parentElement.clientWidth; // Ajustar el ancho del canvas al contenedor
-    canvas.height = 400; // Establecer una altura fija para el canvas
-
-    // Obtener el contexto del canvas
-    const ctx = canvas.getContext('2d');
-
-    // Crear la gráfica de control de rangos móviles
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: Array.from(Array(ranges.length).keys()),
-            datasets: [{
-                label: 'Rangos',
-                data: ranges,
-                borderColor: 'blue',
-                fill: false
-            }, {
-                label: 'UCLR',
-                data: new Array(ranges.length).fill(UCLR), // Llenar el arreglo con el valor de UCLR
-                borderColor: 'red',
-                borderDash: [5, 5],
-                fill: false
-            }, {
-                label: 'LCLR',
-                data: new Array(ranges.length).fill(LCLR), // Llenar el arreglo con el valor de LCLR
-                borderColor: 'green',
-                borderDash: [5, 5],
-                fill: false
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Muestra'
-                    }
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Valor'
-                    }
-                }
-            }
-        }
-    });
+    document.getElementById('correlationResults').textContent = '';
+    document.getElementById('borrarDiagramaButton').style.display = 'none';
 }
 
+function calculateCorrelation(x, y) {
+    var n = x.length;
+    var sumX = x.reduce((a, b) => a + b, 0);
+    var sumY = y.reduce((a, b) => a + b, 0);
+    var sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
+    var sumX2 = x.reduce((sum, xi) => sum + xi * xi, 0);
+    var sumY2 = y.reduce((sum, yi) => sum + yi * yi, 0);
 
+    var numerator = (n * sumXY) - (sumX * sumY);
+    var denominator = Math.sqrt(((n * sumX2) - (sumX * sumX)) * ((n * sumY2) - (sumY * sumY)));
 
+    return numerator / denominator;
+}
 
+function populateColumnSelects() {
+    var table = document.getElementById('tablaContainer').getElementsByTagName('table')[0];
+    var columnas = table.rows[0].cells.length;
+    var selectX = document.getElementById('selectX');
+    var selectY = document.getElementById('selectY');
 
+    selectX.innerHTML = '';
+    selectY.innerHTML = '';
 
-
-
-
-
-
-
+    for (var j = 0; j < columnas; j++) {
+        var option = document.createElement('option');
+        option.text = table.rows[0].cells[j].textContent.trim() || `Variable ${j + 1}`;
+        selectX.add(option);
+        var optionClone = option.cloneNode(true);
+        selectY.add(optionClone);
+    }
+}
