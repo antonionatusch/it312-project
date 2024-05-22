@@ -1,82 +1,79 @@
-/* Estilos para el mapa */
-#mapa {
-    width: 50%;
-    height: 500px;
-    margin: 60px auto;
-    border: 2px solid #ddd;
-    border-radius: 10px;
-    margin-left: 20px;
-    margin-top: 100px;
-}
-/* Estilos para el contenedor del grafo */
-#grafo {
-    top: 450px;
-    position: absolute;
-    width: 45%;
-    height:450px; /* Ajusta la altura según tus necesidades */
-    border: 1px solid #ccc;
-    margin: 60px auto;
-    margin-left: 900px;
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #fff; /* Cambia el color de fondo a blanco */
+    color: #333; /* Cambia el color de texto a oscuro */
 }
 
-/* Estilos para los botones */
+header {
+    background-color: #28a745; /* Cambia el color de fondo del encabezado a verde */
+    color: #fff; /* Cambia el color de texto del encabezado a blanco */
+    text-align: center;
+    padding: 20px 0;
+}
+
+
+h1 {
+    font-size: 28px;
+    margin: 0;
+}
+
+main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+#mapa {
+    width: 100%;
+    height: 500px;
+    margin-bottom: 20px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+}
+
 #botones {
-    text-align: left;
-    margin-top: 20px;
+    background-color: #fff; /* Cambia el color de fondo de los botones a blanco */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 button {
     padding: 10px 20px;
     font-size: 16px;
-    background-color: #007bff;
-    color: white;
+    background-color: #007bff; /* Cambia el color de fondo de los botones a azul */
+    color: #fff; /* Cambia el color de texto de los botones a blanco */
     border: none;
     border-radius: 5px;
     cursor: pointer;
     margin: 0 10px;
-    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
-}
-
-.leaflet-control {
-    background-color: #f8f9fa;
-    border: 1px solid #ccc;
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #0056b3; /* Cambia el color de fondo de los botones a azul más oscuro al pasar el mouse */
 }
 
 #terminar {
-    background-color: #f44336;
+    background-color: #f44336; /* Cambia el color de fondo del botón "Terminar" a rojo */
 }
 
 #terminar:hover {
-    background-color: #d32f2f;
-}
-
-/* Estilos para el título */
-h1 {
-    text-align: center;
-    font-size: 24px;
-    margin-bottom: 30px;
-    color: #333;
+    background-color: #d32f2f; /* Cambia el color de fondo del botón "Terminar" a rojo más oscuro al pasar el mouse */
 }
 
 #informacion-clima p {
     font-size: 18px;
-    color: #333;
+    color: #333; /* Cambia el color de texto de la información climática a oscuro */
     margin-bottom: 10px;
 }
 
-/* Estilos para la lista de marcadores */
 #marcadores-conectados {
-    position: absolute;
-    top: 150px;
-    right: 500px;
-    left: 900px;
-    background-color: #f8f9fa;
-    padding: 10px;
-    border-radius: 5px;
+    background-color: #f8f9fa; /* Cambia el color de fondo del contenedor de marcadores a gris claro */
+    padding: 20px;
+    border-radius: 10px;
     border: 1px solid #ccc;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -84,7 +81,7 @@ h1 {
 #marcadores-conectados h2 {
     font-size: 20px;
     margin-bottom: 10px;
-    color: #333;
+    color: #333; /* Cambia el color de texto del título de marcadores a oscuro */
 }
 
 #lista-marcadores {
@@ -96,35 +93,26 @@ h1 {
 #lista-marcadores li {
     margin-bottom: 5px;
     font-size: 16px;
-    color: #555;
+    color: #555; /* Cambia el color de texto de los marcadores a gris */
 }
 
-
-
-/* Estilos para los nodos del grafo */
-.vis-network {
-    font-family: Arial, sans-serif;
+#grafo {
+    margin-top: 20px;
+    width: 70%; /* Ajusta el ancho del contenedor del gráfico */
+    height: 600px; /* Ajusta la altura del contenedor del gráfico */
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #f8f9fa; /* Cambia el color de fondo del gráfico a gris claro */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-left: auto;
+    margin-right: auto;
 }
 
-/* Estilos para los bordes y las flechas del grafo */
-.vis-edge {
-    color: #666;
-    text-align: center;
+#tabla {
+    background-color: #28a745; /* Cambia el color de fondo del botón "Tabla" a verde */
+    color: white; /* Cambia el color de texto del botón "Tabla" a blanco */
 }
 
-/* Estilos para los textos en los nodos */
-.vis-label {
-    font-size: 12px;
-    font-weight: bold;
-}
-
-/* Estilos para las flechas de los bordes */
-.vis-arrow {
-    fill: #666;
-}
-
-/* Estilos para los textos en los bordes */
-.vis-edge-text {
-    font-size: 10px;
-    fill: #666;
+#tabla:hover {
+    background-color: #218838; /* Cambia el color de fondo del botón "Tabla" a un tono más oscuro al pasar el mouse */
 }

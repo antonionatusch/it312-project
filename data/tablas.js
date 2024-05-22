@@ -196,7 +196,6 @@ function borrarHistogramas() {
     var borrarHistogramasButton = document.getElementById('borrarHistogramasButton');
     borrarHistogramasButton.style.display = 'none';
 }
-
 function generateControlCharts() {
     var table = document.getElementById('tablaContainer').getElementsByTagName('table')[0];
     var rows = table.rows.length;
@@ -215,7 +214,11 @@ function generateControlCharts() {
     }
 
     var controlChartContainer = document.getElementById('controlChartContainer');
-    controlChartContainer.innerHTML = '';
+    // Evitar reemplazar el contenido existente, si lo hay
+    var existingCharts = controlChartContainer.querySelectorAll('.controlChartCanvas');
+    if (existingCharts.length > 0) {
+        return; // Ya se han generado los gráficos
+    }
 
     var nombres = Array.from(table.rows[0].cells).map(cell => cell.textContent.trim());
 
@@ -332,7 +335,6 @@ function generateControlCharts() {
 
     document.getElementById('borrarControlChartsButton').style.display = 'inline-block';
 }
-
 
 
 
