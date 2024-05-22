@@ -215,10 +215,7 @@ function calcularDistanciaEntreMarcadores(origen, destino) {
     }
     return 0;
 }
-
 function terminarColocacionMarcadores() {
-    // Resto del código existente...
-
     // Asignar nombres a los marcadores y recolectarlos
     const marcadoresConNombres = [];
     marcadores.forEach((marcador, index) => {
@@ -263,6 +260,11 @@ function terminarColocacionMarcadores() {
     } else {
         console.error("No se encontraron marcadores para obtener datos meteorológicos.");
     }
+
+    // Deshabilitar la colocación de marcadores
+    conectandoMarcadores = false;
+    document.getElementById('iniciar').disabled = false;
+    document.getElementById('terminar').disabled = true;
 }
 
 
