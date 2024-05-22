@@ -16,8 +16,8 @@ Objetivos:
 * Autogeneración de datos para el histograma, utilizando numeros aleatorios dentro de un rango realista **según la variable** ✅
 * Creación de gráficos de control de observaciones individuales ✅
 * Diagrama de dispersión y análisis de correlación entre 2 variables cualesquiera ✅
-* Estilizarlo para mejor experiencia de usuario
-
+* Estilizarlo para mejor experiencia de usuario ✅
+* Agregar funcionalidad de Ford-Fulkerson en el sistema de navegación
 
 ## gitignore
 El gitignore **bajo _ninguna_ circunstancia** debe modificarse sin previa autorización de los administradores del repo,
