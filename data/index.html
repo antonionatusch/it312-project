@@ -8,26 +8,29 @@
     <link rel="stylesheet" href="custom.css">
 </head>
 <body>
-<h1>Mapa Interactivo</h1>
-<div id="mapa"></div>
-<div id="botones">
-    <button id="iniciar">Iniciar colocación de marcadores</button>
-    <button id="terminar" disabled>Terminar colocación de marcadores</button>
-
-    <div id="informacion-clima">
-        <p>Temperatura: <span id="temperatura"></span>°C</p>
-        <p>Humedad: <span id="humedad"></span>%</p>
-        <p>Probabilidad de lluvia: <span id="probabilidad-lluvia"></span>%</p>
-        <p>Velocidad del viento: <span id="velocidad-viento"></span> km/h</p>
+<header>
+    <h1>Mapa de Navegación de Drones</h1>
+</header>
+<main>
+    <div id="mapa"></div>
+    <div id="botones">
+        <button id="iniciar">Iniciar colocación de marcadores</button>
+        <button id="terminar" disabled>Terminar colocación de marcadores</button>
         <a href="tabla.html"><button id="tabla">Tabla</button></a> <!-- Nuevo botón para la tabla -->
 
+        <div id="informacion-clima">
+            <p>Temperatura: <span id="temperatura"></span>°C</p>
+            <p>Humedad: <span id="humedad"></span>%</p>
+            <p>Probabilidad de lluvia: <span id="probabilidad-lluvia"></span>%</p>
+            <p>Velocidad del viento: <span id="velocidad-viento"></span> km/h</p>
+        </div>
+        <div id="marcadores-conectados">
+            <h2>Marcadores Conectados</h2>
+            <ul id="lista-marcadores"></ul>
+        </div>
+        <div id="grafo"></div>
     </div>
-    <div id="marcadores-conectados">
-        <h2>Marcadores Conectados</h2>
-        <ul id="lista-marcadores"></ul>
-    </div>
-    <div id="grafo"></div>
-</div>
+</main>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.min.js"></script>
