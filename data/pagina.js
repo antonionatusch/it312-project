@@ -52,6 +52,7 @@ function agregarMarcador(lat, lng) {
 }
 
 // Crear una línea poligonal entre dos puntos dados
+// Crear una línea poligonal entre dos puntos dados
 function crearLinea(latlng1, latlng2) {
     const latLngs = [latlng1, latlng2];
     const polyline = L.polyline(latLngs, {color: 'green', dashArray: '5, 10'}).addTo(mapa);
@@ -66,6 +67,9 @@ function crearLinea(latlng1, latlng2) {
     });
     lineas.push(polyline);
 }
+
+
+
 
 // Evento al hacer clic en el mapa para agregar marcadores
 mapa.on('click', function(evento) {
@@ -144,13 +148,11 @@ window.addEventListener('load', () => {
 });
 
 function mostrarGrafo(marcadoresConectados) {
-    // Crear un arreglo de nodos y arcos para vis.js
     const nodos = [];
     const arcos = [];
 
     // Obtener las coordenadas de los marcadores y crear los nodos correspondientes
-    marcadoresConectados.forEach((conexion, index) => {
-        // Agregar nodos si no existen en el arreglo
+    marcadoresConectados.forEach(conexion => {
         if (!nodos.find(nodo => nodo.id === conexion.origen)) {
             const marcadorOrigen = marcadores.find(marcador => marcador.getPopup().getContent() === conexion.origen);
             if (marcadorOrigen) {
@@ -164,45 +166,43 @@ function mostrarGrafo(marcadoresConectados) {
             }
         }
 
-        // Agregar arcos
+        // Agregar arcos bidireccionales
         const distancia = calcularDistanciaEntreMarcadores(conexion.origen, conexion.destino);
-        arcos.push({ from: conexion.origen, to: conexion.destino, label: `${Math.round(distancia)}`, arrows: 'to', color: 'black', font: { align: 'top' } });
+        arcos.push({ from: conexion.origen, to: conexion.destino, label: `${Math.round(distancia)}`, color: 'black', font: { align: 'top' } });
+        arcos.push({ from: conexion.destino, to: conexion.origen, label: `${Math.round(distancia)}`, color: 'black', font: { align: 'top' } });
     });
 
-    // Crear un conjunto de datos para vis.js
     const datos = {
         nodes: nodos,
         edges: arcos
     };
 
-    // Definir el estilo de los nodos
     const nodoEstilo = {
         color: {
-            background: 'lightgrey', // Color de fondo gris claro
-            border: 'black', // Color del borde negro
+            background: 'lightgrey',
+            border: 'black',
             highlight: {
-                background: 'lightgrey', // Color de fondo resaltado gris claro
-                border: 'black' // Color del borde resaltado negro
+                background: 'lightgrey',
+                border: 'black'
             }
         }
     };
 
-    // Configurar las opciones del gráfico con el estilo de nodo definido
     const opciones = {
-        physics: false, // Deshabilitar la simulación física para mantener fijos los nodos
+        physics: false,
         nodes: {
-            shape: 'circle', // Forma de los nodos (círculo)
-            ...nodoEstilo // Agregar el estilo de nodo definido
+            shape: 'circle',
+            ...nodoEstilo
         }
     };
 
-    // Mostrar el gráfico en el contenedor
     const contenedor = document.getElementById('grafo');
     const red = new vis.Network(contenedor, datos, opciones);
 
-    // Ajustar el gráfico para que todos los nodos y arcos sean visibles
     red.fit();
 }
+
+
 
 // Función para calcular la distancia entre dos marcadores
 function calcularDistanciaEntreMarcadores(origen, destino) {
@@ -232,6 +232,7 @@ function terminarColocacionMarcadores() {
         const marcadorFin = encontrarMarcadorCercano(linea.getLatLngs()[1], marcadoresConNombres);
         if (marcadorInicio && marcadorFin) {
             marcadoresConectados.push({ origen: marcadorInicio.nombre, destino: marcadorFin.nombre });
+            marcadoresConectados.push({ origen: marcadorFin.nombre, destino: marcadorInicio.nombre }); // Añadir la conexión inversa
         }
     });
 
@@ -278,6 +279,7 @@ function terminarColocacionMarcadores() {
 
 // Función para calcular el camino más corto usando el algoritmo de Dijkstra
 // Función para calcular el camino más corto usando el algoritmo de Dijkstra
+// Función para calcular el camino más corto usando el algoritmo de Dijkstra
 function dijkstra(marcadoresConectados, inicio) {
     const distancias = {};
     const previos = {};
@@ -310,6 +312,7 @@ function dijkstra(marcadoresConectados, inicio) {
 
     return { distancias, previos };
 }
+
 
 
 // Función para calcular el camino más corto y devolver los nodos en el orden correcto
