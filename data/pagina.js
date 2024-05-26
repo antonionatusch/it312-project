@@ -240,10 +240,16 @@ function terminarColocacionMarcadores() {
     listaCaminoCorto.innerHTML = ''; // Limpiar la lista antes de agregar nuevos elementos
 
     // Calcular el camino más corto y mostrar las distancias
-    const distancias = dijkstra(marcadoresConectados, 'A');
+    const { distancias, previos } = dijkstra(marcadoresConectados, 'A');
     Object.keys(distancias).forEach(destino => {
         const listItem = document.createElement('li');
-        listItem.textContent = `${destino}: ${distancias[destino]} metros`;
+        const camino = [];
+        let nodoActual = destino;
+        while (nodoActual !== null) {
+            camino.unshift(nodoActual);
+            nodoActual = previos[nodoActual];
+        }
+        listItem.textContent = `${destino}: ${distancias[destino]} metros, Camino: ${camino.join(' -> ')}`;
         listaCaminoCorto.appendChild(listItem);
     });
 
@@ -269,6 +275,8 @@ function terminarColocacionMarcadores() {
     document.getElementById('terminar').disabled = true;
 }
 
+
+// Función para calcular el camino más corto usando el algoritmo de Dijkstra
 // Función para calcular el camino más corto usando el algoritmo de Dijkstra
 function dijkstra(marcadoresConectados, inicio) {
     const distancias = {};
@@ -300,8 +308,9 @@ function dijkstra(marcadoresConectados, inicio) {
         });
     }
 
-    return distancias;
+    return { distancias, previos };
 }
+
 
 // Función para calcular el camino más corto y devolver los nodos en el orden correcto
 function calcularCaminoMasCorto(marcadoresConectados, inicio) {
@@ -342,12 +351,4 @@ class PriorityQueue {
     }
 }
 
-// Función para crear una línea roja sólida en el camino más corto
-function crearLineaRoja(camino) {
-    const latLngs = camino.map(punto => {
-        const marcador = marcadores.find(marcador => marcador.getPopup().getContent() === punto);
-        return marcador.getLatLng();
-    });
 
-    const polylineRoja = L.polyline(latLngs, { color: 'red' }).addTo(mapa);
-}
