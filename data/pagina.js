@@ -23,6 +23,7 @@ let marcadores = [];
 let lineas = []; // Array para almacenar las líneas poligonales
 let conectandoMarcadores = false;
 let marcadorOrigen = null;
+let contadorMarcadores = 0;
 
 // Icono para los marcadores (gris)
 const marcadorGris = L.icon({
@@ -35,7 +36,15 @@ const marcadorGris = L.icon({
 
 // Función para agregar marcadores al mapa con nombres específicos
 function agregarMarcador(lat, lng) {
-    const marcador = L.marker([lat, lng], {icon: marcadorGris}).addTo(mapa); // Icono gris
+    const nombre = `${String.fromCharCode(65 + contadorMarcadores)}`; // Asignar nombres como A, B, C, etc.
+    const marcador = L.marker([lat, lng], {icon: marcadorGris}).addTo(mapa).bindPopup(nombre).openPopup(); // Icono gris
+    contadorMarcadores++;
+
+    // Añadir opción al select
+    const option = document.createElement('option');
+    option.value = nombre;
+    option.textContent = nombre;
+    document.getElementById('punto-inicio').appendChild(option);
 
     marcador.on('click', function(event) {
         if (conectandoMarcadores) {
@@ -51,7 +60,7 @@ function agregarMarcador(lat, lng) {
     });
 
     marcador.on('dblclick', function(event) {
-        eliminarMarcador(marcador);
+        eliminarMarcador(marcador, nombre);
     });
 
     marcadores.push(marcador);
@@ -76,9 +85,16 @@ function crearLinea(latlng1, latlng2) {
 }
 
 // Función para eliminar un marcador y sus conexiones
-function eliminarMarcador(marcador) {
+function eliminarMarcador(marcador, nombre) {
     mapa.removeLayer(marcador);
     marcadores = marcadores.filter(m => m !== marcador);
+
+    // Eliminar la opción del select
+    const select = document.getElementById('punto-inicio');
+    const option = select.querySelector(`option[value="${nombre}"]`);
+    if (option) {
+        select.removeChild(option);
+    }
 
     // Eliminar todas las líneas conectadas al marcador
     lineas.forEach(linea => {
@@ -110,7 +126,14 @@ document.getElementById('iniciar').addEventListener('click', () => {
 });
 
 // Evento al hacer clic en el botón 'Terminar'
-document.getElementById('terminar').addEventListener('click', terminarColocacionMarcadores);
+document.getElementById('terminar').addEventListener('click', () => {
+    const puntoInicioSelect = document.getElementById('punto-inicio');
+    const puntoInicio = puntoInicioSelect.value;
+    if (puntoInicio) {
+        document.getElementById('punto-inicio-nombre').textContent = puntoInicio;
+        terminarColocacionMarcadores(puntoInicio);
+    }
+});
 
 // Función para encontrar el marcador más cercano a una coordenada dada
 function encontrarMarcadorCercano(latlng, marcadoresConNombres) {
@@ -219,11 +242,11 @@ function calcularDistanciaEntreMarcadores(origen, destino) {
     return 0;
 }
 
-function terminarColocacionMarcadores() {
+function terminarColocacionMarcadores(puntoInicio) {
     const marcadoresConNombres = [];
     marcadores.forEach((marcador, index) => {
         const nombre = `${String.fromCharCode(65 + index)}`;
-        marcador.bindPopup(nombre);
+        marcador.bindPopup(nombre).openPopup();
         marcador.addTo(mapa);
         marcadoresConNombres.push({ nombre, marcador });
     });
@@ -241,7 +264,7 @@ function terminarColocacionMarcadores() {
     const listaCaminoCorto = document.getElementById('lista-camino-corto');
     listaCaminoCorto.innerHTML = '';
 
-    const { distancias, previos } = dijkstra(marcadoresConectados, 'A');
+    const { distancias, previos } = dijkstra(marcadoresConectados, puntoInicio);
     Object.keys(distancias).forEach(destino => {
         const listItem = document.createElement('li');
         const camino = [];
@@ -250,7 +273,7 @@ function terminarColocacionMarcadores() {
             camino.unshift(nodoActual);
             nodoActual = previos[nodoActual];
         }
-        listItem.textContent = `${destino}: ${distancias[destino]} metros, Camino: ${camino.join(' -> ')}`;
+        listItem.textContent = `${destino}: ${Math.round(distancias[destino])} metros, Camino: ${camino.join(' -> ')}`;
         listaCaminoCorto.appendChild(listItem);
     });
 
@@ -261,7 +284,7 @@ function terminarColocacionMarcadores() {
         const primeraUbicacion = marcadoresConNombres[0].marcador.getLatLng();
         obtenerDatosMeteorologicos(primeraUbicacion.lat, primeraUbicacion.lng);
 
-        const caminoMasCorto = calcularCaminoMasCorto(marcadoresConectados, 'A');
+        const caminoMasCorto = calcularCaminoMasCorto(marcadoresConectados, puntoInicio);
         crearLineaRoja(caminoMasCorto);
     } else {
         console.error("No se encontraron marcadores para obtener datos meteorológicos.");
