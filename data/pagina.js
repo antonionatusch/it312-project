@@ -307,11 +307,11 @@ function dijkstra(marcadoresConectados, inicio) {
 function calcularCaminoMasCorto(marcadoresConectados, inicio) {
     const distancias = dijkstra(marcadoresConectados, inicio);
     const camino = [];
-    Object.keys(distancias).forEach(destino => {
-        if (distancias[destino] !== Infinity) {
-            camino.push(destino);
-        }
-    });
+    let nodoActual = Object.keys(distancias).reduce((a, b) => (distancias[a] < distancias[b] ? a : b));
+    while (nodoActual) {
+        camino.unshift(nodoActual);
+        nodoActual = distancias[nodoActual].previo;
+    }
     return camino;
 }
 
