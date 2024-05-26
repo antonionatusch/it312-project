@@ -214,11 +214,12 @@ function calcularDistanciaEntreMarcadores(origen, destino) {
     }
     return 0;
 }
+
 function terminarColocacionMarcadores() {
     // Asignar nombres a los marcadores y recolectarlos
     const marcadoresConNombres = [];
     marcadores.forEach((marcador, index) => {
-        const nombre = ` ${String.fromCharCode(65 + index)}`; // Asignar nombres como Punto A, Punto B, etc.
+        const nombre = `${String.fromCharCode(65 + index)}`; // Asignar nombres como Punto A, Punto B, etc.
         marcador.bindPopup(nombre); // Mostrar el nombre del marcador al hacer clic en él
         marcador.addTo(mapa); // Agregar el marcador nuevamente al mapa para que se muestre el nombre
         marcadoresConNombres.push({ nombre, marcador }); // Agregar el marcador con su nombre al array
@@ -239,7 +240,7 @@ function terminarColocacionMarcadores() {
     listaCaminoCorto.innerHTML = ''; // Limpiar la lista antes de agregar nuevos elementos
 
     // Calcular el camino más corto y mostrar las distancias
-    const distancias = dijkstra(marcadoresConectados, ' A');
+    const distancias = dijkstra(marcadoresConectados, 'A');
     Object.keys(distancias).forEach(destino => {
         const listItem = document.createElement('li');
         listItem.textContent = `${destino}: ${distancias[destino]} metros`;
@@ -256,7 +257,7 @@ function terminarColocacionMarcadores() {
         obtenerDatosMeteorologicos(primeraUbicacion.lat, primeraUbicacion.lng);
 
         // Crear la línea roja para el camino más corto
-        const caminoMasCorto = calcularCaminoMasCorto(marcadoresConectados, ' A');
+        const caminoMasCorto = calcularCaminoMasCorto(marcadoresConectados, 'A');
         crearLineaRoja(caminoMasCorto);
     } else {
         console.error("No se encontraron marcadores para obtener datos meteorológicos.");
@@ -287,9 +288,9 @@ function dijkstra(marcadoresConectados, inicio) {
     while (!pq.isEmpty()) {
         const menor = pq.dequeue().element;
 
-        const conexiones = marcadoresConectados.filter(con => con.origen === menor || con.destino === menor);
+        const conexiones = marcadoresConectados.filter(con => con.origen === menor);
         conexiones.forEach(conexion => {
-            const vecino = conexion.origen === menor ? conexion.destino : conexion.origen;
+            const vecino = conexion.destino;
             const nuevaDistancia = distancias[menor] + calcularDistanciaEntreMarcadores(menor, vecino);
             if (nuevaDistancia < distancias[vecino]) {
                 distancias[vecino] = nuevaDistancia;
@@ -324,7 +325,7 @@ class PriorityQueue {
         let added = false;
         for (let i = 0; i < this.items.length; i++) {
             if (this.items[i].priority > qElement.priority) {
-                this.items.splice(i, 1, qElement);
+                this.items.splice(i, 0, qElement);
                 added = true;
                 break;
             }
