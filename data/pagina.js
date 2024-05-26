@@ -1,4 +1,3 @@
-
 // Configurar el mapa interactivo con Leaflet
 const mapa = L.map('mapa').setView([0, 0], 13);
 
@@ -236,12 +235,15 @@ function terminarColocacionMarcadores() {
     });
 
     // Mostrar los marcadores conectados en la lista del HTML
-    const listaMarcadores = document.getElementById('lista-marcadores');
-    listaMarcadores.innerHTML = ''; // Limpiar la lista antes de agregar nuevos elementos
-    marcadoresConectados.forEach(conexion => {
+    const listaCaminoCorto = document.getElementById('lista-camino-corto');
+    listaCaminoCorto.innerHTML = ''; // Limpiar la lista antes de agregar nuevos elementos
+
+    // Calcular el camino más corto y mostrar las distancias
+    const distancias = dijkstra(marcadoresConectados, ' A');
+    Object.keys(distancias).forEach(destino => {
         const listItem = document.createElement('li');
-        listItem.textContent = `${conexion.origen} - ${conexion.destino}`;
-        listaMarcadores.appendChild(listItem);
+        listItem.textContent = `${destino}: ${distancias[destino]} metros`;
+        listaCaminoCorto.appendChild(listItem);
     });
 
     // Mostrar los marcadores conectados en la consola o donde desees
@@ -253,9 +255,8 @@ function terminarColocacionMarcadores() {
         const primeraUbicacion = marcadoresConNombres[0].marcador.getLatLng();
         obtenerDatosMeteorologicos(primeraUbicacion.lat, primeraUbicacion.lng);
 
-        // Calcular el camino más corto y crear la línea roja
-        const caminoMasCorto = dijkstra(marcadoresConectados, marcadoresConNombres[0].nombre, marcadoresConNombres[marcadoresConNombres.length - 1].nombre);
-        console.log("Camino más corto:", caminoMasCorto);
+        // Crear la línea roja para el camino más corto
+        const caminoMasCorto = calcularCaminoMasCorto(marcadoresConectados, ' A');
         crearLineaRoja(caminoMasCorto);
     } else {
         console.error("No se encontraron marcadores para obtener datos meteorológicos.");
@@ -267,12 +268,10 @@ function terminarColocacionMarcadores() {
     document.getElementById('terminar').disabled = true;
 }
 
-
 // Función para calcular el camino más corto usando el algoritmo de Dijkstra
-function dijkstra(marcadoresConectados, inicio, fin) {
+function dijkstra(marcadoresConectados, inicio) {
     const distancias = {};
     const previos = {};
-    const visitados = new Set();
     const pq = new PriorityQueue();
 
     marcadoresConectados.forEach(conexion => {
@@ -287,28 +286,31 @@ function dijkstra(marcadoresConectados, inicio, fin) {
 
     while (!pq.isEmpty()) {
         const menor = pq.dequeue().element;
-        visitados.add(menor);
 
         const conexiones = marcadoresConectados.filter(con => con.origen === menor || con.destino === menor);
         conexiones.forEach(conexion => {
             const vecino = conexion.origen === menor ? conexion.destino : conexion.origen;
-            if (!visitados.has(vecino)) {
-                const nuevaDistancia = distancias[menor] + calcularDistanciaEntreMarcadores(menor, vecino);
-                if (nuevaDistancia < distancias[vecino]) {
-                    distancias[vecino] = nuevaDistancia;
-                    previos[vecino] = menor;
-                    pq.enqueue(vecino, nuevaDistancia);
-                }
+            const nuevaDistancia = distancias[menor] + calcularDistanciaEntreMarcadores(menor, vecino);
+            if (nuevaDistancia < distancias[vecino]) {
+                distancias[vecino] = nuevaDistancia;
+                previos[vecino] = menor;
+                pq.enqueue(vecino, nuevaDistancia);
             }
         });
     }
 
+    return distancias;
+}
+
+// Función para calcular el camino más corto y devolver los nodos en el orden correcto
+function calcularCaminoMasCorto(marcadoresConectados, inicio) {
+    const distancias = dijkstra(marcadoresConectados, inicio);
     const camino = [];
-    let actual = fin;
-    while (actual) {
-        camino.unshift(actual);
-        actual = previos[actual];
-    }
+    Object.keys(distancias).forEach(destino => {
+        if (distancias[destino] !== Infinity) {
+            camino.push(destino);
+        }
+    });
     return camino;
 }
 
@@ -348,4 +350,3 @@ function crearLineaRoja(camino) {
 
     const polylineRoja = L.polyline(latLngs, { color: 'red' }).addTo(mapa);
 }
-
