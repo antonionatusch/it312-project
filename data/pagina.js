@@ -267,7 +267,7 @@ function terminarColocacionMarcadores() {
         console.error("No se encontraron marcadores para obtener datos meteorológicos.");
     }
 
-    conectandoMarcadores = false;
+    conectandoMarcadores = false; // Evitar que se agreguen más marcadores
     document.getElementById('iniciar').disabled = false;
     document.getElementById('terminar').disabled = true;
 }
@@ -340,4 +340,14 @@ class PriorityQueue {
     isEmpty() {
         return this.items.length === 0;
     }
+}
+
+// Función para crear una línea roja sólida en el camino más corto
+function crearLineaRoja(camino) {
+    const latLngs = camino.map(punto => {
+        const marcador = marcadores.find(marcador => marcador.getPopup().getContent() === punto);
+        return marcador.getLatLng();
+    });
+
+    const polylineRoja = L.polyline(latLngs, { color: 'red' }).addTo(mapa);
 }
