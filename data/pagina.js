@@ -36,6 +36,7 @@ const marcadorGris = L.icon({
 // Función para agregar marcadores al mapa con nombres específicos
 function agregarMarcador(lat, lng) {
     const marcador = L.marker([lat, lng], {icon: marcadorGris}).addTo(mapa); // Icono gris
+
     marcador.on('click', function(event) {
         if (conectandoMarcadores) {
             const marcadorSeleccionado = event.target;
@@ -48,10 +49,14 @@ function agregarMarcador(lat, lng) {
             }
         }
     });
+
+    marcador.on('dblclick', function(event) {
+        eliminarMarcador(marcador);
+    });
+
     marcadores.push(marcador);
 }
 
-// Crear una línea poligonal entre dos puntos dados
 // Crear una línea poligonal entre dos puntos dados
 function crearLinea(latlng1, latlng2) {
     const latLngs = [latlng1, latlng2];
@@ -64,12 +69,31 @@ function crearLinea(latlng1, latlng2) {
     polyline.bindTooltip(`${Math.round(distancia)} metros`, { permanent: true, direction: 'center' }).openTooltip();
     polyline.on('click', function(event) {
         mapa.removeLayer(polyline); // Eliminar la línea del mapa cuando se hace clic en ella
+        lineas = lineas.filter(l => l !== polyline); // Eliminar la línea del array de líneas
     });
+
     lineas.push(polyline);
 }
 
+// Función para eliminar un marcador y sus conexiones
+function eliminarMarcador(marcador) {
+    mapa.removeLayer(marcador);
+    marcadores = marcadores.filter(m => m !== marcador);
 
+    // Eliminar todas las líneas conectadas al marcador
+    lineas.forEach(linea => {
+        const [latlng1, latlng2] = linea.getLatLngs();
+        if (latlng1.equals(marcador.getLatLng()) || latlng2.equals(marcador.getLatLng())) {
+            mapa.removeLayer(linea);
+        }
+    });
 
+    // Actualizar el array de líneas eliminando las conexiones del marcador eliminado
+    lineas = lineas.filter(linea => {
+        const [latlng1, latlng2] = linea.getLatLngs();
+        return !latlng1.equals(marcador.getLatLng()) && !latlng2.equals(marcador.getLatLng());
+    });
+}
 
 // Evento al hacer clic en el mapa para agregar marcadores
 mapa.on('click', function(evento) {
@@ -80,7 +104,6 @@ mapa.on('click', function(evento) {
 
 // Evento al hacer clic en el botón 'Iniciar'
 document.getElementById('iniciar').addEventListener('click', () => {
-    // Habilitar colocación de marcadores
     conectandoMarcadores = true;
     document.getElementById('iniciar').disabled = true;
     document.getElementById('terminar').disabled = false;
@@ -100,30 +123,16 @@ async function obtenerDatosMeteorologicos(latitude, longitude) {
         const response = await fetch(url);
         const data = await response.json();
 
-        console.log("Datos meteorológicos:", data); // Verificar los datos obtenidos
-
         if (data.current !== undefined && data.hourly !== undefined) {
-            console.log("Objeto current:", data.current); // Verificar el objeto current
-            console.log("Objeto hourly:", data.hourly); // Verificar el objeto hourly
-
             const { temperature_2m: temperaturaActual, wind_speed_10m: velocidadVientoActual } = data.current;
-            console.log("Temperatura actual:", temperaturaActual); // Verificar la temperatura actual
-            console.log("Velocidad del viento actual:", velocidadVientoActual); // Verificar la velocidad del viento actual
-
             const { relative_humidity_2m: humedad, wind_speed_10m: velocidadViento, precipitation: probabilidadLluvia } = data.hourly;
-            console.log("Humedad:", humedad); // Verificar la humedad
-            console.log("Velocidad del viento:", velocidadViento); // Verificar la velocidad del viento
-            console.log("Probabilidad de lluvia:", probabilidadLluvia); // Verificar la probabilidad de lluvia
 
-            // Calcular el promedio de la probabilidad de lluvia
             const promedioProbabilidadLluvia = calcularPromedio(probabilidadLluvia);
-            console.log("Promedio de probabilidad de lluvia:", promedioProbabilidadLluvia); // Verificar el promedio de probabilidad de lluvia
 
-            // Mostrar los datos en la página HTML
             document.getElementById('temperatura').innerHTML = temperaturaActual;
-            document.getElementById('humedad').innerHTML = humedad[0]; // Tomamos el valor de la humedad en la primera hora
-            document.getElementById('velocidad-viento').innerHTML = velocidadVientoActual; // Usamos la velocidad del viento actual
-            document.getElementById('probabilidad-lluvia').innerHTML = promedioProbabilidadLluvia.toFixed(2); // Mostramos el promedio de la probabilidad de lluvia
+            document.getElementById('humedad').innerHTML = humedad[0];
+            document.getElementById('velocidad-viento').innerHTML = velocidadVientoActual;
+            document.getElementById('probabilidad-lluvia').innerHTML = promedioProbabilidadLluvia.toFixed(2);
         } else {
             console.error("No se pudieron obtener los datos meteorológicos de la respuesta de la API.");
         }
@@ -141,7 +150,6 @@ function calcularPromedio(lista) {
 
 // Llamar a la función para obtener los datos meteorológicos al cargar la página
 window.addEventListener('load', () => {
-    // Aquí debes definir las coordenadas para tu ubicación actual
     const latitude = 0; // Reemplaza con la latitud de tu ubicación
     const longitude = 0; // Reemplaza con la longitud de tu ubicación
     obtenerDatosMeteorologicos(latitude, longitude);
@@ -151,7 +159,6 @@ function mostrarGrafo(marcadoresConectados) {
     const nodos = [];
     const arcos = [];
 
-    // Obtener las coordenadas de los marcadores y crear los nodos correspondientes
     marcadoresConectados.forEach(conexion => {
         if (!nodos.find(nodo => nodo.id === conexion.origen)) {
             const marcadorOrigen = marcadores.find(marcador => marcador.getPopup().getContent() === conexion.origen);
@@ -166,7 +173,6 @@ function mostrarGrafo(marcadoresConectados) {
             }
         }
 
-        // Agregar arcos bidireccionales
         const distancia = calcularDistanciaEntreMarcadores(conexion.origen, conexion.destino);
         arcos.push({ from: conexion.origen, to: conexion.destino, label: `${Math.round(distancia)}`, color: 'black', font: { align: 'top' } });
         arcos.push({ from: conexion.destino, to: conexion.origen, label: `${Math.round(distancia)}`, color: 'black', font: { align: 'top' } });
@@ -202,8 +208,6 @@ function mostrarGrafo(marcadoresConectados) {
     red.fit();
 }
 
-
-
 // Función para calcular la distancia entre dos marcadores
 function calcularDistanciaEntreMarcadores(origen, destino) {
     const marcadorOrigen = marcadores.find(marcador => marcador.getPopup().getContent() === origen);
@@ -216,31 +220,27 @@ function calcularDistanciaEntreMarcadores(origen, destino) {
 }
 
 function terminarColocacionMarcadores() {
-    // Asignar nombres a los marcadores y recolectarlos
     const marcadoresConNombres = [];
     marcadores.forEach((marcador, index) => {
-        const nombre = `${String.fromCharCode(65 + index)}`; // Asignar nombres como Punto A, Punto B, etc.
-        marcador.bindPopup(nombre); // Mostrar el nombre del marcador al hacer clic en él
-        marcador.addTo(mapa); // Agregar el marcador nuevamente al mapa para que se muestre el nombre
-        marcadoresConNombres.push({ nombre, marcador }); // Agregar el marcador con su nombre al array
+        const nombre = `${String.fromCharCode(65 + index)}`;
+        marcador.bindPopup(nombre);
+        marcador.addTo(mapa);
+        marcadoresConNombres.push({ nombre, marcador });
     });
 
-    // Verificar qué marcadores están conectados entre sí
     const marcadoresConectados = [];
     lineas.forEach(linea => {
         const marcadorInicio = encontrarMarcadorCercano(linea.getLatLngs()[0], marcadoresConNombres);
         const marcadorFin = encontrarMarcadorCercano(linea.getLatLngs()[1], marcadoresConNombres);
         if (marcadorInicio && marcadorFin) {
             marcadoresConectados.push({ origen: marcadorInicio.nombre, destino: marcadorFin.nombre });
-            marcadoresConectados.push({ origen: marcadorFin.nombre, destino: marcadorInicio.nombre }); // Añadir la conexión inversa
+            marcadoresConectados.push({ origen: marcadorFin.nombre, destino: marcadorInicio.nombre });
         }
     });
 
-    // Mostrar los marcadores conectados en la lista del HTML
     const listaCaminoCorto = document.getElementById('lista-camino-corto');
-    listaCaminoCorto.innerHTML = ''; // Limpiar la lista antes de agregar nuevos elementos
+    listaCaminoCorto.innerHTML = '';
 
-    // Calcular el camino más corto y mostrar las distancias
     const { distancias, previos } = dijkstra(marcadoresConectados, 'A');
     Object.keys(distancias).forEach(destino => {
         const listItem = document.createElement('li');
@@ -254,32 +254,24 @@ function terminarColocacionMarcadores() {
         listaCaminoCorto.appendChild(listItem);
     });
 
-    // Mostrar los marcadores conectados en la consola o donde desees
     console.log("Marcadores conectados:", marcadoresConectados);
     mostrarGrafo(marcadoresConectados);
 
-    // Recolectar datos meteorológicos para la ubicación del primer marcador
     if (marcadoresConNombres.length > 0) {
         const primeraUbicacion = marcadoresConNombres[0].marcador.getLatLng();
         obtenerDatosMeteorologicos(primeraUbicacion.lat, primeraUbicacion.lng);
 
-        // Crear la línea roja para el camino más corto
         const caminoMasCorto = calcularCaminoMasCorto(marcadoresConectados, 'A');
         crearLineaRoja(caminoMasCorto);
     } else {
         console.error("No se encontraron marcadores para obtener datos meteorológicos.");
     }
 
-    // Deshabilitar la colocación de marcadores
     conectandoMarcadores = false;
     document.getElementById('iniciar').disabled = false;
     document.getElementById('terminar').disabled = true;
 }
 
-
-// Función para calcular el camino más corto usando el algoritmo de Dijkstra
-// Función para calcular el camino más corto usando el algoritmo de Dijkstra
-// Función para calcular el camino más corto usando el algoritmo de Dijkstra
 function dijkstra(marcadoresConectados, inicio) {
     const distancias = {};
     const previos = {};
@@ -313,11 +305,8 @@ function dijkstra(marcadoresConectados, inicio) {
     return { distancias, previos };
 }
 
-
-
-// Función para calcular el camino más corto y devolver los nodos en el orden correcto
 function calcularCaminoMasCorto(marcadoresConectados, inicio) {
-    const distancias = dijkstra(marcadoresConectados, inicio);
+    const { distancias, previos } = dijkstra(marcadoresConectados, inicio);
     const camino = [];
     let nodoActual = Object.keys(distancias).reduce((a, b) => (distancias[a] < distancias[b] ? a : b));
     while (nodoActual) {
@@ -327,7 +316,6 @@ function calcularCaminoMasCorto(marcadoresConectados, inicio) {
     return camino;
 }
 
-// Clase de cola de prioridad
 class PriorityQueue {
     constructor() {
         this.items = [];
@@ -353,5 +341,3 @@ class PriorityQueue {
         return this.items.length === 0;
     }
 }
-
-
