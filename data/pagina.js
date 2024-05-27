@@ -167,7 +167,7 @@ function encontrarMarcadorCercano(latlng, marcadoresConNombres) {
 
 async function obtenerDatosMeteorologicos(latitude, longitude) {
     try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=-17.7833&longitude=-63.1667&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation`;
         const response = await fetch(url);
         const data = await response.json();
 
