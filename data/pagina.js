@@ -12,7 +12,8 @@ if ("geolocation" in navigator) {
     mapa.locate({setView: true, maxZoom: 16});
     mapa.on('locationfound', function(evento) {
         const ubicacion = evento.latlng;
-        // Podrías hacer algo con la ubicación del usuario aquí
+        // Establecer una vista con un nivel de zoom que muestre un radio de aproximadamente 500 metros
+        mapa.setView(ubicacion, 14);
     });
 } else {
     alert("La geolocalización no está disponible en este navegador.");

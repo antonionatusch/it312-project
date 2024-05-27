@@ -186,6 +186,13 @@ function generateHistograms() {
 
     var borrarHistogramasButton = document.getElementById('borrarHistogramasButton');
     borrarHistogramasButton.style.display = 'block';
+
+    // Hacer scroll hasta la ubicación de los histogramas
+    const histogramContainerTop = histogramContainer.offsetTop;
+    window.scrollTo({
+        top: histogramContainerTop,
+        behavior: 'smooth' // Para realizar un scroll suave
+    });
 }
 
 function borrarHistogramas() {
@@ -195,6 +202,14 @@ function borrarHistogramas() {
     // Ocultar botón de borrar histogramas
     var borrarHistogramasButton = document.getElementById('borrarHistogramasButton');
     borrarHistogramasButton.style.display = 'none';
+
+    // Hacer scroll hasta la ubicación de la tabla
+    const tablaContainer = document.getElementById('tablaContainer');
+    const tablaContainerTop = tablaContainer.offsetTop;
+    window.scrollTo({
+        top: tablaContainerTop,
+        behavior: 'smooth' // Para realizar un scroll suave
+    });
 }
 function generateControlCharts() {
     var table = document.getElementById('tablaContainer').getElementsByTagName('table')[0];
@@ -334,6 +349,11 @@ function generateControlCharts() {
     });
 
     document.getElementById('borrarControlChartsButton').style.display = 'inline-block';
+    const controlChartContainerTop = controlChartContainer.offsetTop;
+    window.scrollTo({
+        top: controlChartContainerTop,
+        behavior: 'smooth' // Para realizar un scroll suave
+    });
 }
 
 
@@ -341,6 +361,14 @@ function generateControlCharts() {
 function borrarControlCharts() {
     document.getElementById('controlChartContainer').innerHTML = '';
     document.getElementById('borrarControlChartsButton').style.display = 'none';
+
+    // Hacer scroll hasta la ubicación de la tabla
+    const tablaContainer = document.getElementById('tablaContainer');
+    const tablaContainerTop = tablaContainer.offsetTop;
+    window.scrollTo({
+        top: tablaContainerTop,
+        behavior: 'smooth' // Para realizar un scroll suave
+    });
 }
 
 function linearRegression(x, y) {
@@ -444,6 +472,13 @@ function generarDiagramaDispersion() {
 
     document.getElementById('columnSelectorContainer').style.display = 'block';
     document.getElementById('borrarDiagramaButton').style.display = 'inline-block'
+
+    // Hacer scroll hasta la ubicación del gráfico de dispersión
+    const scatterPlotCanvasTop = scatterPlotCanvas.offsetTop;
+    window.scrollTo({
+        top: scatterPlotCanvasTop,
+        behavior: 'smooth' // Para realizar un scroll suave
+    });
 }
 
 function borrarDiagramaDispersion() {
@@ -456,8 +491,15 @@ function borrarDiagramaDispersion() {
     document.getElementById('borrarDiagramaButton').style.display = 'none';
     // Ocultar el div columnSelectorContainer
     document.getElementById('columnSelectorContainer').style.display = 'none';
-}
 
+    // Hacer scroll hasta la ubicación de la tabla
+    const tablaContainer = document.getElementById('tablaContainer');
+    const tablaContainerTop = tablaContainer.offsetTop;
+    window.scrollTo({
+        top: tablaContainerTop,
+        behavior: 'smooth' // Para realizar un scroll suave
+    });
+}
 function calculateCorrelation(x, y) {
     var n = x.length;
     var sumX = x.reduce((a, b) => a + b, 0);
