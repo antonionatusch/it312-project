@@ -1,5 +1,5 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Times New Roman', Times, serif;
     background-color: #fff; /* Cambia el color de fondo a blanco */
     color: #333; /* Cambia el color de texto a oscuro */
     margin: 0;
@@ -112,49 +112,6 @@ table td {
     height: 400px;
     margin: 0 auto;
 }
-
-#borrarControlChartsButton {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    display: none;
-    padding: 8px 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-#borrarControlChartsButton:hover {
-    background-color: #0056b3;
-}
-
-#borrarControlChartsButton:active {
-    background-color: #0056b3;
-}
-
-#borrarHistogramasButton {
-    position: fixed;
-    bottom: 60px; /* Cambiado a 60px para moverlo más arriba */
-    right: 20px;
-    display: none;
-    padding: 8px 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-#borrarHistogramasButton:hover {
-    background-color: #0056b3;
-}
-
-#borrarHistogramasButton:active {
-    background-color: #0056b3;
-}
-
 /* Estilos para contenedor de histogramas */
 #histogramContainer {
     display: flex;
@@ -206,4 +163,89 @@ table td {
     width: 100%; /* Ocupa todo el ancho disponible */
     height: 400px; /* Ajusta la altura deseada */
     margin-bottom: 20px; /* Espacio entre gráficos */
+}
+
+#borrarControlChartsButton {
+    position: fixed;
+    bottom: 60px; /* Segundo en posición */
+    right: 20px;
+    display: none;
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#borrarControlChartsButton:hover {
+    background-color: #0056b3;
+}
+
+#borrarControlChartsButton:active {
+    background-color: #0056b3;
+}
+
+#borrarHistogramasButton {
+    position: fixed;
+    bottom: 100px; /* Colocado más arriba */
+    right: 20px;
+    display: none;
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#borrarHistogramasButton:hover {
+    background-color: #0056b3;
+}
+
+#borrarHistogramasButton:active {
+    background-color: #0056b3;
+}
+
+#borrarDiagramaButton {
+    position: fixed;
+    bottom: 20px; /* Último en posición */
+    right: 20px;
+    display: none; /* Inicialmente oculto */
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#borrarDiagramaButton:hover {
+    background-color: #0056b3;
+}
+
+#borrarDiagramaButton:active {
+    background-color: #0056b3;
+}
+
+* {
+    font-family: 'Times New Roman', Times, serif;
+}
+
+/* Estilos para los botones */
+.home-button {
+    font-family: 'Times New Roman', Times, serif; /* Agregado */
+}
+
+.button-group button {
+    font-family: 'Times New Roman', Times, serif; /* Agregado */
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+body {
+    animation: fadeIn 1s ease-in-out;
 }

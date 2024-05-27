@@ -1,5 +1,5 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Times New Roman', Times, serif;
     margin: 0;
     padding: 0;
     background-color: #fff; /* Cambia el color de fondo a blanco */
@@ -12,7 +12,6 @@ header {
     text-align: center;
     padding: 20px 0;
 }
-
 
 h1 {
     font-size: 28px;
@@ -84,13 +83,13 @@ button:hover {
     color: #333; /* Cambia el color de texto del título de marcadores a oscuro */
 }
 
-#lista-marcadores {
+#lista-camino-corto {
     list-style-type: none;
     padding: 0;
     margin: 0;
 }
 
-#lista-marcadores li {
+#lista-camino-corto li {
     margin-bottom: 5px;
     font-size: 16px;
     color: #555; /* Cambia el color de texto de los marcadores a gris */
@@ -116,3 +115,27 @@ button:hover {
 #tabla:hover {
     background-color: #218838; /* Cambia el color de fondo del botón "Tabla" a un tono más oscuro al pasar el mouse */
 }
+
+* {
+    font-family: 'Times New Roman', Times, serif;
+}
+
+/* Estilos para los botones */
+.home-button {
+    font-family: 'Times New Roman', Times, serif; /* Agregado */
+}
+
+.button-group button {
+    font-family: 'Times New Roman', Times, serif; /* Agregado */
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+body {
+    animation: fadeIn 1s ease-in-out;
+}
+
+
