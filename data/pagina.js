@@ -34,17 +34,28 @@ const marcadorGris = L.icon({
     shadowSize: [41, 41]
 });
 
+// Función para actualizar el selector de puntos de inicio
+function actualizarSelector() {
+    const select = document.getElementById('punto-inicio');
+    select.innerHTML = ''; // Limpiar el selector
+
+    marcadores.forEach((marcador, index) => {
+        const nombre = `${String.fromCharCode(65 + index)}`;
+        const option = document.createElement('option');
+        option.value = nombre;
+        option.textContent = nombre;
+        select.appendChild(option);
+    });
+}
+
 // Función para agregar marcadores al mapa con nombres específicos
 function agregarMarcador(lat, lng) {
     const nombre = `${String.fromCharCode(65 + contadorMarcadores)}`; // Asignar nombres como A, B, C, etc.
     const marcador = L.marker([lat, lng], {icon: marcadorGris}).addTo(mapa).bindPopup(nombre).openPopup(); // Icono gris
     contadorMarcadores++;
 
-    // Añadir opción al select
-    const option = document.createElement('option');
-    option.value = nombre;
-    option.textContent = nombre;
-    document.getElementById('punto-inicio').appendChild(option);
+    marcadores.push(marcador);
+    actualizarSelector();
 
     marcador.on('click', function(event) {
         if (conectandoMarcadores) {
@@ -60,10 +71,8 @@ function agregarMarcador(lat, lng) {
     });
 
     marcador.on('dblclick', function(event) {
-        eliminarMarcador(marcador, nombre);
+        eliminarMarcador(marcador);
     });
-
-    marcadores.push(marcador);
 }
 
 // Crear una línea poligonal entre dos puntos dados
@@ -85,16 +94,11 @@ function crearLinea(latlng1, latlng2) {
 }
 
 // Función para eliminar un marcador y sus conexiones
-function eliminarMarcador(marcador, nombre) {
+function eliminarMarcador(marcador) {
+    const nombre = marcador.getPopup().getContent();
     mapa.removeLayer(marcador);
     marcadores = marcadores.filter(m => m !== marcador);
-
-    // Eliminar la opción del select
-    const select = document.getElementById('punto-inicio');
-    const option = select.querySelector(`option[value="${nombre}"]`);
-    if (option) {
-        select.removeChild(option);
-    }
+    actualizarSelector();
 
     // Eliminar todas las líneas conectadas al marcador
     lineas.forEach(linea => {
@@ -137,37 +141,22 @@ document.getElementById('terminar').addEventListener('click', () => {
 
 // Evento al hacer clic en el botón 'Reiniciar'
 document.getElementById('reiniciar').addEventListener('click', () => {
-    // Eliminar todos los marcadores
+    // Reiniciar todas las variables y limpiar el mapa
     marcadores.forEach(marcador => mapa.removeLayer(marcador));
-    marcadores = [];
-
-    // Eliminar todas las líneas
     lineas.forEach(linea => mapa.removeLayer(linea));
+    marcadores = [];
     lineas = [];
+    contadorMarcadores = 0;
+    marcadorOrigen = null;
+    conectandoMarcadores = false;
+    actualizarSelector();
 
-    // Reiniciar el select
-    const select = document.getElementById('punto-inicio');
-    select.innerHTML = '';
-
-    // Reiniciar el grafo
-    const grafoContenedor = document.getElementById('grafo');
-    grafoContenedor.innerHTML = '';
-
-    // Reiniciar la lista de caminos cortos
-    const listaCaminoCorto = document.getElementById('lista-camino-corto');
-    listaCaminoCorto.innerHTML = '';
-
-    // Reiniciar los botones
     document.getElementById('iniciar').disabled = false;
     document.getElementById('terminar').disabled = true;
 
-    // Reiniciar el contador de marcadores
-    contadorMarcadores = 0;
-
-    // Reiniciar el texto del punto de inicio
-    document.getElementById('punto-inicio-nombre').textContent = 'A';
-
-    conectandoMarcadores = false;
+    // Limpiar la lista de caminos y el gráfico
+    document.getElementById('lista-camino-corto').innerHTML = '';
+    document.getElementById('grafo').innerHTML = '';
 });
 
 // Función para encontrar el marcador más cercano a una coordenada dada
