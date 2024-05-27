@@ -135,6 +135,41 @@ document.getElementById('terminar').addEventListener('click', () => {
     }
 });
 
+// Evento al hacer clic en el botón 'Reiniciar'
+document.getElementById('reiniciar').addEventListener('click', () => {
+    // Eliminar todos los marcadores
+    marcadores.forEach(marcador => mapa.removeLayer(marcador));
+    marcadores = [];
+
+    // Eliminar todas las líneas
+    lineas.forEach(linea => mapa.removeLayer(linea));
+    lineas = [];
+
+    // Reiniciar el select
+    const select = document.getElementById('punto-inicio');
+    select.innerHTML = '';
+
+    // Reiniciar el grafo
+    const grafoContenedor = document.getElementById('grafo');
+    grafoContenedor.innerHTML = '';
+
+    // Reiniciar la lista de caminos cortos
+    const listaCaminoCorto = document.getElementById('lista-camino-corto');
+    listaCaminoCorto.innerHTML = '';
+
+    // Reiniciar los botones
+    document.getElementById('iniciar').disabled = false;
+    document.getElementById('terminar').disabled = true;
+
+    // Reiniciar el contador de marcadores
+    contadorMarcadores = 0;
+
+    // Reiniciar el texto del punto de inicio
+    document.getElementById('punto-inicio-nombre').textContent = 'A';
+
+    conectandoMarcadores = false;
+});
+
 // Función para encontrar el marcador más cercano a una coordenada dada
 function encontrarMarcadorCercano(latlng, marcadoresConNombres) {
     return marcadoresConNombres.find(marcador => marcador.marcador.getLatLng().equals(latlng));
