@@ -157,7 +157,9 @@ function generateHistograms() {
                     data: frecuencias,
                     backgroundColor: 'rgba(0, 123, 255, 0.5)',
                     borderColor: 'blue',
-                    borderWidth: 1
+                    borderWidth: 1,
+                    barPercentage: 1,
+                    categoryPercentage: 1
                 }]
             },
             options: {
